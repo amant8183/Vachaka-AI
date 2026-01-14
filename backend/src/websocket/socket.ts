@@ -3,6 +3,7 @@ import { Server as HTTPServer } from "http";
 import { aiService } from "../services/ai.service";
 import { memoryService } from "../services/memory.service";
 import { sttService } from "../services/stt.service";
+import { ttsService } from "../services/tts.service";
 import { Conversation } from "../models/Conversation";
 import { logger } from "../utils/logger";
 import env from "../config/env";
@@ -96,12 +97,35 @@ export const initializeWebSocket = (httpServer: HTTPServer): SocketIOServer => {
                     fullResponse
                 );
 
-                // Emit completion
+                // Emit text completion
                 io.to(conversationId).emit("message_complete", {
                     role: "assistant",
                     content: fullResponse,
                     timestamp: aiMessage.timestamp,
                 });
+
+                // Generate TTS audio if available
+                if (ttsService.isAvailable()) {
+                    try {
+                        logger.info("Generating TTS audio for AI response");
+                        const audioBuffer = await ttsService.textToSpeech(fullResponse);
+
+                        // Convert buffer to base64 for transmission
+                        const audioBase64 = audioBuffer.toString("base64");
+
+                        // Emit audio response (WAV for Deepgram, MP3 for OpenAI)
+                        const mimeType = ttsService.getProvider() === "deepgram" ? "audio/wav" : "audio/mpeg";
+                        io.to(conversationId).emit("ai_voice_response", {
+                            audio: audioBase64,
+                            mimeType: mimeType,
+                        });
+
+                        logger.info("TTS audio sent to client");
+                    } catch (ttsError) {
+                        logger.error("Error generating TTS audio:", ttsError);
+                        // Don't fail the whole request if TTS fails
+                    }
+                }
 
                 logger.info(`Message processed for conversation ${conversationId}`);
             } catch (error) {
@@ -115,25 +139,33 @@ export const initializeWebSocket = (httpServer: HTTPServer): SocketIOServer => {
             try {
                 const { conversationId, audioBuffer } = data;
 
+                logger.info(`Voice input received for conversation ${conversationId}`);
+                logger.info(`Audio buffer type: ${typeof audioBuffer}, length: ${audioBuffer?.length || 'undefined'}`);
+
                 if (!audioBuffer || !conversationId) {
+                    logger.warn("Invalid voice data: missing audioBuffer or conversationId");
                     socket.emit("error", { message: "Invalid voice data" });
                     return;
                 }
 
                 const conversation = await Conversation.findById(conversationId);
                 if (!conversation) {
+                    logger.warn(`Conversation not found: ${conversationId}`);
                     socket.emit("error", { message: "Conversation not found" });
                     return;
                 }
 
                 // Emit processing status
                 socket.emit("voice_processing", { status: "transcribing" });
+                logger.info("Starting transcription...");
 
                 // Transcribe audio
                 const transcript = await sttService.transcribeBuffer(
                     Buffer.from(audioBuffer),
                     "audio/webm"
                 );
+
+                logger.info(`Transcription complete: ${transcript}`);
 
                 // Emit transcription
                 socket.emit("voice_transcribed", { transcript });
@@ -179,16 +211,39 @@ export const initializeWebSocket = (httpServer: HTTPServer): SocketIOServer => {
                     fullResponse
                 );
 
-                // Emit completion
+                // Emit text completion
                 io.to(conversationId).emit("message_complete", {
                     role: "assistant",
                     content: fullResponse,
                     timestamp: aiMessage.timestamp,
                 });
 
+                // Generate TTS audio if available
+                if (ttsService.isAvailable()) {
+                    try {
+                        logger.info("Generating TTS audio for voice response");
+                        const audioBuffer = await ttsService.textToSpeech(fullResponse);
+
+                        // Convert buffer to base64 for transmission
+                        const audioBase64 = audioBuffer.toString("base64");
+
+                        // Emit audio response (WAV for Deepgram, MP3 for OpenAI)
+                        const mimeType = ttsService.getProvider() === "deepgram" ? "audio/wav" : "audio/mpeg";
+                        io.to(conversationId).emit("ai_voice_response", {
+                            audio: audioBase64,
+                            mimeType: mimeType,
+                        });
+
+                        logger.info("TTS audio sent to client");
+                    } catch (ttsError) {
+                        logger.error("Error generating TTS audio:", ttsError);
+                    }
+                }
+
                 logger.info(`Voice message processed for conversation ${conversationId}`);
             } catch (error) {
-                logger.error("Error processing voice input", error);
+                logger.error("Error processing voice input:", error);
+                logger.error("Error stack:", (error as Error).stack);
                 socket.emit("error", { message: "Failed to process voice input" });
             }
         });

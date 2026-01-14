@@ -1,7 +1,8 @@
 import { io, Socket } from "socket.io-client";
 import { Message } from "@/types";
+import { API_CONFIG } from "./config";
 
-const SOCKET_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
+const SOCKET_URL = API_CONFIG.BACKEND_URL;
 
 interface SocketEvents {
     // Client -> Server

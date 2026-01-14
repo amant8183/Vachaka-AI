@@ -63,12 +63,22 @@ export const useConversation = (conversationId: string | null) => {
             alert(`Error: ${data.message}`);
         });
 
+        // Listen for AI voice responses
+        socket.on("ai_voice_response", (data: { audio: string; mimeType: string }) => {
+            console.log("🎙️ Received ai_voice_response event, audio length:", data.audio?.length, "mimeType:", data.mimeType);
+            // Emit event that can be caught by audio player
+            const event = new CustomEvent("ai_voice_response", { detail: data });
+            window.dispatchEvent(event);
+            console.log("📢 Dispatched ai_voice_response custom event");
+        });
+
         return () => {
             socket.off("joined_conversation");
             socket.off("message_received");
             socket.off("message_chunk");
             socket.off("message_complete");
             socket.off("error");
+            socket.off("ai_voice_response");
         };
     }, [socket, conversationId]);
 
@@ -83,7 +93,9 @@ export const useConversation = (conversationId: string | null) => {
     const sendVoiceInput = useCallback(
         (audioBuffer: ArrayBuffer) => {
             if (!socket || !conversationId) return;
-            socket.emit("voice_input", { conversationId, audioBuffer });
+            // Convert ArrayBuffer to Uint8Array for Socket.IO transmission
+            const audioData = new Uint8Array(audioBuffer);
+            socket.emit("voice_input", { conversationId, audioBuffer: audioData });
         },
         [socket, conversationId]
     );

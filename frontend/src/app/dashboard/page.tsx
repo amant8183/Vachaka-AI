@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { MessageSquare, Brain, PlusCircle, Send, Mic, Loader2, MicOff } from "lucide-react";
+import { MessageSquare, Brain, PlusCircle, Send, Mic, Loader2, MicOff, Volume2 } from "lucide-react";
 import { useConversation } from "@/hooks/useConversation";
 import { useVoiceRecorder } from "@/hooks/useVoiceRecorder";
+import { useAudioPlayer } from "@/hooks/useAudioPlayer";
 import { ConversationMode, Message } from "@/types";
+import { API_CONFIG } from "@/lib/config";
 
 export default function Dashboard() {
   // For demo purposes, using a hardcoded conversation ID
@@ -33,8 +35,21 @@ export default function Dashboard() {
     resetRecording,
   } = useVoiceRecorder();
 
+  const { isPlaying, isSpeaking, playAudio, stop: stopAudio } = useAudioPlayer();
+
   const [newMessage, setNewMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  // Listen for AI voice responses
+  useEffect(() => {
+    const handleVoiceResponse = (event: Event) => {
+      const customEvent = event as CustomEvent<{ audio: string; mimeType: string }>;
+      playAudio(customEvent.detail.audio, customEvent.detail.mimeType);
+    };
+
+    window.addEventListener("ai_voice_response", handleVoiceResponse);
+    return () => window.removeEventListener("ai_voice_response", handleVoiceResponse);
+  }, [playAudio]);
 
   // Scroll to bottom on new messages
   useEffect(() => {
@@ -77,7 +92,7 @@ export default function Dashboard() {
   const createNewConversation = async () => {
     try {
       // Create a demo user first (in production, this would be from auth)
-      const userResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users`, {
+      const userResponse = await fetch(`${API_CONFIG.BACKEND_URL}/api/users`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: "Demo User" }),
@@ -92,7 +107,7 @@ export default function Dashboard() {
         userId = "demo-user-id";
       }
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/conversations`, {
+      const response = await fetch(`${API_CONFIG.BACKEND_URL}/api/conversations`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -133,8 +148,8 @@ export default function Dashboard() {
             <button
               onClick={() => setSelectedMode("casual")}
               className={`w-full p-6 rounded-lg border-2 transition-all text-left ${selectedMode === "casual"
-                  ? "border-blue-600 bg-blue-50"
-                  : "border-gray-200 hover:border-blue-300"
+                ? "border-blue-600 bg-blue-50"
+                : "border-gray-200 hover:border-blue-300"
                 }`}
             >
               <div className="flex items-start gap-4">
@@ -154,8 +169,8 @@ export default function Dashboard() {
             <button
               onClick={() => setSelectedMode("interview")}
               className={`w-full p-6 rounded-lg border-2 transition-all text-left ${selectedMode === "interview"
-                  ? "border-blue-600 bg-blue-50"
-                  : "border-gray-200 hover:border-blue-300"
+                ? "border-blue-600 bg-blue-50"
+                : "border-gray-200 hover:border-blue-300"
                 }`}
             >
               <div className="flex items-start gap-4">
@@ -232,8 +247,8 @@ export default function Dashboard() {
                   <div className="flex items-start gap-3">
                     <div
                       className={`w-9 h-9 rounded-full flex items-center justify-center font-semibold ${message.role === "user"
-                          ? "bg-blue-100 text-blue-600"
-                          : "bg-indigo-100 text-indigo-600"
+                        ? "bg-blue-100 text-blue-600"
+                        : "bg-indigo-100 text-indigo-600"
                         }`}
                     >
                       {message.role === "user" ? "U" : "AI"}
@@ -303,10 +318,10 @@ export default function Dashboard() {
               onClick={handleMicClick}
               disabled={!isConnected}
               className={`absolute right-4 top-1/2 -translate-y-1/2 transition ${voiceState === "recording"
-                  ? "text-red-600 animate-pulse"
-                  : voiceState === "idle"
-                    ? "text-gray-500 hover:text-blue-600 cursor-pointer"
-                    : "text-gray-400"
+                ? "text-red-600 animate-pulse"
+                : voiceState === "idle"
+                  ? "text-gray-500 hover:text-blue-600 cursor-pointer"
+                  : "text-gray-400"
                 }`}
             >
               {voiceState === "recording" ? (
@@ -321,8 +336,8 @@ export default function Dashboard() {
             onClick={handleSend}
             disabled={!isConnected || isStreaming || !newMessage.trim()}
             className={`flex items-center gap-2 px-5 py-3 rounded-full font-medium text-white shadow-sm transition-all ${!isConnected || isStreaming || !newMessage.trim()
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:opacity-90"
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:opacity-90"
               }`}
           >
             {isStreaming ? (
