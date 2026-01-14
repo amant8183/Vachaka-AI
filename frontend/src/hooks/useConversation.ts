@@ -92,7 +92,11 @@ export const useConversation = (conversationId: string | null) => {
 
     const sendVoiceInput = useCallback(
         (audioBuffer: ArrayBuffer) => {
-            if (!socket || !conversationId) return;
+            if (!socket || !conversationId) {
+                console.error("❌ sendVoiceInput aborted: Missing socket or conversationId", { socket: !!socket, conversationId });
+                return;
+            }
+            console.log(`📤 useConversation sending voice input to ${conversationId}, buffer: ${audioBuffer.byteLength} bytes`);
             // Convert ArrayBuffer to Uint8Array for Socket.IO transmission
             const audioData = new Uint8Array(audioBuffer);
             socket.emit("voice_input", { conversationId, audioBuffer: audioData });

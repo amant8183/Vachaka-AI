@@ -139,10 +139,15 @@ export const initializeWebSocket = (httpServer: HTTPServer): SocketIOServer => {
             try {
                 const { conversationId, audioBuffer } = data;
 
+                console.log(`[🎤 SERVER] Received voice_input event for ${conversationId}`);
+                console.log(`[🎤 SERVER] Audio buffer type: ${typeof audioBuffer}, length: ${audioBuffer?.length}`);
+
                 logger.info(`Voice input received for conversation ${conversationId}`);
                 logger.info(`Audio buffer type: ${typeof audioBuffer}, length: ${audioBuffer?.length || 'undefined'}`);
 
+
                 if (!audioBuffer || !conversationId) {
+                    console.error("[❌ SERVER] Invalid voice data: missing audioBuffer or conversationId");
                     logger.warn("Invalid voice data: missing audioBuffer or conversationId");
                     socket.emit("error", { message: "Invalid voice data" });
                     return;

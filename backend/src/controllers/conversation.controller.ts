@@ -11,6 +11,8 @@ export const createConversation = async (req: Request, res: Response): Promise<v
     try {
         const { userId, mode } = req.body;
 
+        logger.info(`Received conversation creation request - userId: ${userId}, mode: ${mode}, body:`, req.body);
+
         if (!userId || !mode) {
             throw new AppError("userId and mode are required", 400);
         }
