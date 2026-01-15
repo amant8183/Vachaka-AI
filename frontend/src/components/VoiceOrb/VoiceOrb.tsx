@@ -15,37 +15,36 @@ export function VoiceOrb({ state, volume = 0, onClick }: VoiceOrbProps) {
     // Normalize volume for visual scaling (0-1)
     const normalizedVolume = Math.min(volume / 255, 1);
 
-    // Calculate dynamic scale based on state and volume
+    // Premium motion - scale based on state
     const getScale = () => {
         if (state === 'listening') {
-            return 1 + (normalizedVolume * 0.15); // Pulse outward with volume
-        }
-        if (state === 'speaking') {
-            return 1 + (Math.sin(Date.now() / 400) * 0.08); // Smooth wave
+            // Outward pulse with volume (red state)
+            return 1 + (normalizedVolume * 0.12); // Reduced from 0.15 for subtlety
         }
         return 1;
     };
 
     return (
         <div className="relative flex items-center justify-center">
-            {/* Glow effect */}
+            {/* Subtle glow effect - reduced opacity for premium feel */}
             <motion.div
-                className="absolute inset-0 rounded-full blur-[80px]"
+                className="absolute inset-0 rounded-full"
                 style={{
                     background: stateConfig.glowColor,
+                    filter: `blur(${tokens.orb.glow.blur})`,
                 }}
                 animate={{
-                    opacity: state === 'idle' ? 0 : [0.3, 0.6, 0.3],
-                    scale: state === 'idle' ? 0.8 : [0.9, 1.1, 0.9],
+                    opacity: state === 'idle' ? 0 : [0.2, 0.4, 0.2],
+                    scale: state === 'idle' ? 0.8 : [0.95, 1.05, 0.95],
                 }}
                 transition={{
-                    duration: 2,
+                    duration: stateConfig.pulseSpeed,
                     repeat: Infinity,
-                    ease: 'easeInOut',
+                    ease: tokens.animation.easing.standard,
                 }}
             />
 
-            {/* Outer rings */}
+            {/* Outer concentric rings - only for active states */}
             {state !== 'idle' && (
                 <>
                     <motion.div
@@ -54,17 +53,17 @@ export function VoiceOrb({ state, volume = 0, onClick }: VoiceOrbProps) {
                             width: '320px',
                             height: '320px',
                             borderColor: stateConfig.color,
-                            borderWidth: '1px',
+                            borderWidth: tokens.orb.borderWidth,
                         }}
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{
                             opacity: [0, stateConfig.ringOpacity, 0],
-                            scale: [0.9, 1.15, 1.3],
+                            scale: [0.9, 1.12, 1.25],
                         }}
                         transition={{
                             duration: 2.5,
                             repeat: Infinity,
-                            ease: 'easeOut',
+                            ease: tokens.animation.easing.decelerate,
                         }}
                     />
                     <motion.div
@@ -73,144 +72,199 @@ export function VoiceOrb({ state, volume = 0, onClick }: VoiceOrbProps) {
                             width: '320px',
                             height: '320px',
                             borderColor: stateConfig.color,
-                            borderWidth: '1px',
+                            borderWidth: tokens.orb.borderWidth,
                         }}
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{
                             opacity: [0, stateConfig.ringOpacity, 0],
-                            scale: [0.9, 1.15, 1.3],
+                            scale: [0.9, 1.12, 1.25],
                         }}
                         transition={{
                             duration: 2.5,
                             repeat: Infinity,
-                            ease: 'easeOut',
+                            ease: tokens.animation.easing.decelerate,
                             delay: 0.8,
                         }}
                     />
                 </>
             )}
 
-            {/* Main orb */}
+            {/* Main orb - perfect circular geometry */}
             <motion.button
                 onClick={onClick}
                 className="relative rounded-full"
                 style={{
-                    width: '280px',
-                    height: '280px',
+                    width: tokens.orb.size.desktop,
+                    height: tokens.orb.size.desktop,
                     backgroundColor: tokens.colors.surface,
-                    border: `2px solid ${stateConfig.color}`,
+                    border: `${tokens.orb.borderWidth} solid ${stateConfig.color}`,
                 }}
                 animate={{
                     scale: getScale(),
                     borderColor: stateConfig.color,
                 }}
                 whileHover={{
-                    scale: 1.05,
+                    scale: 1.03, // Reduced from 1.05 for subtlety
                 }}
                 whileTap={{
-                    scale: 0.95,
+                    scale: 0.97, // Reduced from 0.95
                 }}
                 transition={{
                     duration: tokens.animation.duration.normal / 1000,
-                    ease: tokens.animation.easing.easeInOut,
+                    ease: tokens.animation.easing.standard,
                 }}
             >
-                {/* Inner gradient */}
+                {/* Subtle internal gradient */}
                 <div
-                    className="absolute inset-2 rounded-full"
+                    className="absolute inset-2 rounded-full pointer-events-none"
                     style={{
-                        background: `radial-gradient(circle at 30% 30%, ${stateConfig.color}15, transparent 70%)`,
+                        background: `radial-gradient(circle at 35% 35%, ${stateConfig.color}12, transparent 65%)`,
                     }}
                 />
 
-                {/* Center indicator */}
+                {/* Center core - state-specific behavior */}
                 <div className="absolute inset-0 flex items-center justify-center">
-                    <motion.div
-                        className="rounded-full"
-                        style={{
-                            width: '80px',
-                            height: '80px',
-                            backgroundColor: stateConfig.color,
-                            opacity: state === 'idle' ? 0.2 : 0.6,
-                        }}
-                        animate={{
-                            scale: state === 'processing' ? [1, 1.2, 1] : 1,
-                            opacity: state === 'processing' ? [0.4, 0.7, 0.4] : state === 'idle' ? 0.2 : 0.6,
-                        }}
-                        transition={{
-                            duration: 1.5,
-                            repeat: state === 'processing' ? Infinity : 0,
-                            ease: 'easeInOut',
-                        }}
-                    />
-                </div>
+                    {/* Idle: Subtle breathing */}
+                    {state === 'idle' && (
+                        <motion.div
+                            className="rounded-full"
+                            style={{
+                                width: '60px',
+                                height: '60px',
+                                backgroundColor: stateConfig.color,
+                                opacity: 0.15,
+                            }}
+                            animate={{
+                                scale: [1, 1.1, 1],
+                                opacity: [0.15, 0.25, 0.15],
+                            }}
+                            transition={{
+                                duration: stateConfig.pulseSpeed,
+                                repeat: Infinity,
+                                ease: tokens.animation.easing.standard,
+                            }}
+                        />
+                    )}
 
-                {/* Volume bars for listening state */}
-                {state === 'listening' && (
-                    <div className="absolute inset-0 flex items-center justify-center gap-1.5">
-                        {[...Array(5)].map((_, i) => (
+                    {/* Listening: Volume bars */}
+                    {state === 'listening' && (
+                        <div className="flex items-center justify-center gap-1.5">
+                            {[...Array(5)].map((_, i) => (
+                                <motion.div
+                                    key={i}
+                                    className="rounded-full"
+                                    style={{
+                                        width: '3px',
+                                        backgroundColor: tokens.colors.userPrimary,
+                                    }}
+                                    animate={{
+                                        height: `${12 + normalizedVolume * 36}px`,
+                                    }}
+                                    transition={{
+                                        duration: 0.08,
+                                        delay: i * 0.04,
+                                        ease: tokens.animation.easing.standard,
+                                    }}
+                                />
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Processing: Slow internal rotation/breathing - must hold 4 seconds */}
+                    {state === 'processing' && (
+                        <>
                             <motion.div
-                                key={i}
-                                className="rounded-full"
+                                className="rounded-full absolute"
                                 style={{
-                                    width: '4px',
-                                    backgroundColor: tokens.colors.userPrimary,
+                                    width: '70px',
+                                    height: '70px',
+                                    backgroundColor: tokens.colors.processingPrimary,
+                                    opacity: 0.35,
                                 }}
                                 animate={{
-                                    height: `${10 + normalizedVolume * 40}px`,
+                                    scale: [1, 1.15, 1],
+                                    opacity: [0.35, 0.5, 0.35],
+                                    rotate: [0, 180, 360],
                                 }}
                                 transition={{
-                                    duration: 0.1,
-                                    delay: i * 0.05,
+                                    duration: 4, // Matches backend processing time
+                                    repeat: Infinity,
+                                    ease: tokens.animation.easing.standard,
                                 }}
                             />
-                        ))}
-                    </div>
-                )}
-
-                {/* Wave pattern for speaking state */}
-                {state === 'speaking' && (
-                    <svg
-                        className="absolute inset-0 w-full h-full"
-                        viewBox="0 0 280 280"
-                        fill="none"
-                    >
-                        {[...Array(3)].map((_, i) => (
-                            <motion.circle
-                                key={i}
-                                cx="140"
-                                cy="140"
-                                r={40 + i * 25}
-                                stroke={tokens.colors.aiPrimary}
-                                strokeWidth="2"
-                                fill="none"
-                                initial={{ opacity: 0.6 }}
+                            {/* Inner particle effect */}
+                            <motion.div
+                                className="rounded-full absolute"
+                                style={{
+                                    width: '40px',
+                                    height: '40px',
+                                    backgroundColor: tokens.colors.processingPrimary,
+                                    opacity: 0.2,
+                                }}
                                 animate={{
-                                    opacity: [0.6, 0.2, 0.6],
-                                    r: [40 + i * 25, 50 + i * 25, 40 + i * 25],
+                                    scale: [1, 0.8, 1],
+                                    opacity: [0.2, 0.4, 0.2],
                                 }}
                                 transition={{
                                     duration: 2,
                                     repeat: Infinity,
-                                    ease: 'easeInOut',
-                                    delay: i * 0.3,
+                                    ease: tokens.animation.easing.standard,
+                                    delay: 0.5,
                                 }}
                             />
-                        ))}
-                    </svg>
-                )}
+                        </>
+                    )}
+
+                    {/* Responding/Speaking: Smooth concentric waves */}
+                    {(state === 'responding' || state === 'speaking') && (
+                        <svg
+                            className="absolute inset-0 w-full h-full pointer-events-none"
+                            viewBox="0 0 280 280"
+                            fill="none"
+                        >
+                            {[...Array(3)].map((_, i) => (
+                                <motion.circle
+                                    key={i}
+                                    cx="140"
+                                    cy="140"
+                                    r={35 + i * 20}
+                                    stroke={tokens.colors.aiPrimary}
+                                    strokeWidth="1.5"
+                                    fill="none"
+                                    initial={{ opacity: 0.5 }}
+                                    animate={{
+                                        opacity: [0.5, 0.2, 0.5],
+                                        r: [35 + i * 20, 42 + i * 20, 35 + i * 20],
+                                    }}
+                                    transition={{
+                                        duration: stateConfig.pulseSpeed,
+                                        repeat: Infinity,
+                                        ease: tokens.animation.easing.standard,
+                                        delay: i * 0.25,
+                                    }}
+                                />
+                            ))}
+                        </svg>
+                    )}
+                </div>
             </motion.button>
 
-            {/* State label */}
+            {/* State label - low contrast, secondary */}
             <motion.div
                 className="absolute -bottom-16 left-1/2 -translate-x-1/2"
-                initial={{ opacity: 0, y: -10 }}
+                initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
+                transition={{
+                    duration: tokens.animation.duration.normal / 1000,
+                    ease: tokens.animation.easing.standard,
+                }}
             >
                 <span
                     className="text-sm font-medium tracking-wide"
-                    style={{ color: tokens.colors.textSecondary }}
+                    style={{
+                        color: tokens.colors.textSecondary,
+                        fontWeight: tokens.typography.fontWeight.medium,
+                    }}
                 >
                     {stateConfig.label}
                 </span>

@@ -7,37 +7,64 @@ import { tokens } from '@/lib/design-tokens';
 export default function Home() {
   return (
     <main
-      className="min-h-screen flex flex-col items-center justify-center"
+      className="min-h-screen flex flex-col items-center justify-center px-6"
       style={{ backgroundColor: tokens.colors.background }}
     >
       <motion.div
-        className="text-center space-y-8 px-6"
-        initial={{ opacity: 0, y: 20 }}
+        className="text-center max-w-xl space-y-12"
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
+        transition={{
+          duration: tokens.animation.duration.slower / 1000,
+          ease: tokens.animation.easing.standard,
+        }}
       >
-        <h1
-          className="text-6xl font-bold tracking-tight"
-          style={{ color: tokens.colors.textPrimary }}
-        >
-          Voice AI
-        </h1>
-        <p
-          className="text-xl max-w-md mx-auto leading-relaxed"
-          style={{ color: tokens.colors.textSecondary }}
-        >
-          Talk with your AI assistant — record, transcribe, and view all your interactions.
-        </p>
+        {/* Product name */}
+        <div className="space-y-3">
+          <h1
+            className="text-5xl font-semibold tracking-tight"
+            style={{
+              color: tokens.colors.textPrimary,
+              fontWeight: tokens.typography.fontWeight.semibold,
+            }}
+          >
+            Voice AI
+          </h1>
+          <p
+            className="text-base leading-relaxed"
+            style={{
+              color: tokens.colors.textTertiary,
+              fontWeight: tokens.typography.fontWeight.normal,
+            }}
+          >
+            Voice-first conversations with AI
+          </p>
+        </div>
 
+        {/* CTA */}
         <Link
           href="/dashboard"
-          className="inline-block px-10 py-4 rounded-full text-lg font-medium transition-all hover:scale-105 mt-8"
-          style={{
-            backgroundColor: tokens.colors.userPrimary,
-            color: '#ffffff',
-          }}
+          className="inline-block"
         >
-          Get Started
+          <motion.div
+            className="px-8 py-3 rounded-full text-sm font-medium tracking-wide"
+            style={{
+              backgroundColor: tokens.colors.userPrimary,
+              color: tokens.colors.textPrimary,
+              fontWeight: tokens.typography.fontWeight.medium,
+            }}
+            whileHover={{
+              scale: 1.02,
+              backgroundColor: tokens.colors.userSecondary,
+            }}
+            whileTap={{ scale: 0.98 }}
+            transition={{
+              duration: tokens.animation.duration.fast / 1000,
+              ease: tokens.animation.easing.standard,
+            }}
+          >
+            Enter
+          </motion.div>
         </Link>
       </motion.div>
     </main>
