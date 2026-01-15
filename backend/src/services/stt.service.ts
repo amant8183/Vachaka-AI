@@ -1,11 +1,13 @@
 import env from "../config/env";
 import { logger } from "../utils/logger";
 import OpenAI from "openai";
+import Groq from "groq-sdk";
 import { createClient, LiveTranscriptionEvents } from "@deepgram/sdk";
 import fs from "fs";
 
 class STTService {
     private openaiClient?: OpenAI;
+    private groqClient?: Groq;
     private deepgramClient?: ReturnType<typeof createClient>;
 
     constructor() {
@@ -13,7 +15,12 @@ class STTService {
             this.openaiClient = new OpenAI({
                 apiKey: env.OPENAI_API_KEY,
             });
-            logger.info("Whisper STT initialized");
+            logger.info("OpenAI Whisper STT initialized");
+        } else if (env.STT_PROVIDER === "groq" && env.GROQ_API_KEY) {
+            this.groqClient = new Groq({
+                apiKey: env.GROQ_API_KEY,
+            });
+            logger.info("Groq Whisper STT initialized");
         } else if (env.STT_PROVIDER === "deepgram" && env.DEEPGRAM_API_KEY) {
             this.deepgramClient = createClient(env.DEEPGRAM_API_KEY);
             logger.info("Deepgram STT initialized");
@@ -29,6 +36,8 @@ class STTService {
         try {
             if (env.STT_PROVIDER === "whisper" && this.openaiClient) {
                 return await this.transcribeWithWhisper(audioPath);
+            } else if (env.STT_PROVIDER === "groq" && this.groqClient) {
+                return await this.transcribeWithGroqWhisper(audioPath);
             } else if (env.STT_PROVIDER === "deepgram" && this.deepgramClient) {
                 return await this.transcribeWithDeepgram(audioPath);
             } else {
@@ -53,6 +62,25 @@ class STTService {
             file: audioFile,
             model: "whisper-1",
             language: "en",
+        });
+
+        return response.text;
+    }
+
+    /**
+     * Transcribe with Groq Whisper (FAST!)
+     */
+    private async transcribeWithGroqWhisper(audioPath: string): Promise<string> {
+        if (!this.groqClient) {
+            throw new Error("Groq client not initialized");
+        }
+
+        const audioFile = fs.createReadStream(audioPath);
+        const response = await this.groqClient.audio.transcriptions.create({
+            file: audioFile,
+            model: "whisper-large-v3",
+            language: "en",
+            temperature: 0.0, // More deterministic
         });
 
         return response.text;
@@ -94,11 +122,18 @@ class STTService {
     async transcribeBuffer(buffer: Buffer, mimeType: string): Promise<string> {
         try {
             if (env.STT_PROVIDER === "whisper" && this.openaiClient) {
-                // Whisper requires a file, so we'll need to save temporarily
+                // OpenAI Whisper requires a file
                 const tempPath = `/tmp/audio-${Date.now()}.webm`;
                 fs.writeFileSync(tempPath, buffer);
                 const result = await this.transcribeWithWhisper(tempPath);
-                fs.unlinkSync(tempPath); // Clean up
+                fs.unlinkSync(tempPath);
+                return result;
+            } else if (env.STT_PROVIDER === "groq" && this.groqClient) {
+                // Groq Whisper also requires a file
+                const tempPath = `/tmp/audio-${Date.now()}.webm`;
+                fs.writeFileSync(tempPath, buffer);
+                const result = await this.transcribeWithGroqWhisper(tempPath);
+                fs.unlinkSync(tempPath);
                 return result;
             } else if (env.STT_PROVIDER === "deepgram" && this.deepgramClient) {
                 const { result, error } = await this.deepgramClient.listen.prerecorded.transcribeFile(

@@ -1,0 +1,32 @@
+// Add these console.log statements to socket.ts voice_input handler
+
+// After line 165 (logger.info("Starting transcription...")):
+const perfStart = Date.now();
+const sttStart = Date.now();
+console.log(`\n⏱️ [PERF] ========== START ==========`);
+console.log(`⏱️ [PERF] STT Starting...`);
+
+// After line 173 (logger.info(`Transcription complete: ${transcript}`)):
+const sttDuration = Date.now() - sttStart;
+console.log(`⏱️ [PERF] STT: ${sttDuration}ms | Text: "${transcript}"`);
+
+// After line 198 (socket.emit("voice_processing", { status: "generating_response" })):
+const aiStart = Date.now();
+console.log(`⏱️ [PERF] AI Starting...`);
+
+// After line 210 (fullResponse += chunk loop ends):
+const aiDuration = Date.now() - aiStart;
+console.log(`⏱️ [PERF] AI: ${aiDuration}ms | Response length: ${fullResponse.length} chars`);
+
+// After line 229 (logger.info("Generating TTS audio...")):
+const  ttsStart = Date.now();
+console.log(`⏱️ [PERF] TTS Starting... (text length: ${fullResponse.length} chars)`);
+
+// After line 230 (const audioBuffer = await...):
+const ttsDuration = Date.now() - ttsStart;
+console.log(`⏱️ [PERF] TTS: ${ttsDuration}ms | Audio size: ${audioBuffer.length} bytes`);
+
+// After line 242 (logger.info("TTS audio sent to client")):
+const totalDuration = Date.now() - perfStart;
+console.log(`⏱️ [PERF] ========== TOTAL: ${totalDuration}ms ==========`);
+console.log(`⏱️ [PERF] Breakdown: STT=${sttDuration}ms | AI=${aiDuration}ms | TTS=${ttsDuration}ms\n`);

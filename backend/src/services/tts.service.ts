@@ -82,8 +82,8 @@ class TTSService {
             { text },
             {
                 model: "aura-asteria-en", // Natural, professional voice
-                encoding: "linear16", // WAV format (Deepgram doesn't support mp3)
-                sample_rate: 24000,
+                encoding: "linear16", // WAV format for universal browser support
+                sample_rate: 16000, // Lower for faster processing (good quality for speech)
             }
         );
 

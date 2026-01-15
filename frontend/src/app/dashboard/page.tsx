@@ -72,9 +72,9 @@ export default function Dashboard() {
 
   const vadConfig = {
     enabled: autoMode,
-    threshold: 20,
-    minSpeechDuration: 300,
-    silenceDuration: 1500,
+    threshold: 15, // Lower threshold for faster pickup (from 20)
+    minSpeechDuration: 250, // Faster detection (from 300ms)
+    silenceDuration: 800, // Reduced from 1500ms for faster response
   };
 
   const vad = useVoiceActivityDetection(

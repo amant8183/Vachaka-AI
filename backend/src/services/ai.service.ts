@@ -64,11 +64,11 @@ class AIService {
         }
 
         const stream = await this.groqClient.chat.completions.create({
-            model: "llama-3.3-70b-versatile",
+            model: "llama-3.1-8b-instant", // Fast model for low latency
             messages,
             stream: true,
-            temperature: 0.7,
-            max_tokens: 1024,
+            temperature: 0.5, // Lower for faster, more focused responses
+            max_tokens: 512, // Reduced for faster voice responses
         });
 
         for await (const chunk of stream) {
@@ -135,10 +135,10 @@ class AIService {
         try {
             if (env.AI_PROVIDER === "groq" && this.groqClient) {
                 const response = await this.groqClient.chat.completions.create({
-                    model: "llama-3.3-70b-versatile",
+                    model: "llama-3.1-8b-instant", // Fast model for low latency
                     messages: formattedMessages,
-                    temperature: 0.7,
-                    max_tokens: 1024,
+                    temperature: 0.5, // Lower for faster, more focused responses
+                    max_tokens: 512, // Reduced for faster voice responses
                 });
                 return response.choices[0]?.message?.content || "";
             } else if (env.AI_PROVIDER === "openai" && this.openaiClient) {

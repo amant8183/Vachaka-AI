@@ -163,10 +163,6 @@ export const initializeWebSocket = (httpServer: HTTPServer): SocketIOServer => {
                 // Emit processing status
                 socket.emit("voice_processing", { status: "transcribing" });
                 logger.info("Starting transcription...");
-                const perfStart = Date.now();
-                const sttStart = Date.now();
-                console.log(`\n⏱️ [PERF] ========== START ==========`);
-                console.log(`⏱️ [PERF] STT Starting...`);
 
                 // Transcribe audio
                 const transcript = await sttService.transcribeBuffer(
@@ -175,8 +171,6 @@ export const initializeWebSocket = (httpServer: HTTPServer): SocketIOServer => {
                 );
 
                 logger.info(`Transcription complete: ${transcript}`);
-                const sttDuration = Date.now() - sttStart;
-                console.log(`⏱️ [PERF] STT: ${sttDuration}ms | Text: "${transcript.substring(0, 50)}..."`);
 
                 // Emit transcription
                 socket.emit("voice_transcribed", { transcript });
@@ -204,8 +198,6 @@ export const initializeWebSocket = (httpServer: HTTPServer): SocketIOServer => {
                 socket.emit("voice_processing", { status: "generating_response" });
 
                 // Stream AI response
-                const aiStart = Date.now();
-                console.log(`⏱️ [PERF] AI Starting...`);
                 let fullResponse = "";
                 const responseStream = aiService.generateStreamingResponse(
                     recentMessages,
@@ -218,8 +210,6 @@ export const initializeWebSocket = (httpServer: HTTPServer): SocketIOServer => {
                 }
 
                 // Save complete AI response
-                const aiDuration = Date.now() - aiStart;
-                console.log(`⏱️ [PERF] AI: ${aiDuration}ms | Response: ${fullResponse.length} chars`);
                 const aiMessage = await memoryService.addMessage(
                     conversationId,
                     "assistant",
@@ -241,16 +231,9 @@ export const initializeWebSocket = (httpServer: HTTPServer): SocketIOServer => {
 
                         // Convert buffer to base64 for transmission
                         const audioBase64 = audioBuffer.toString("base64");
-                        const ttsStart = Date.now();
-                        console.log(`⏱️ [PERF] TTS Starting (${fullResponse.length} chars)...`);
 
                         // Emit audio response (WAV for Deepgram, MP3 for OpenAI)
                         const mimeType = ttsService.getProvider() === "deepgram" ? "audio/wav" : "audio/mpeg";
-                        const ttsDuration = Date.now() - ttsStart;
-                        console.log(`⏱️ [PERF] TTS: ${ttsDuration}ms | Audio: ${audioBuffer.length} bytes`);
-                        const totalDuration = Date.now() - perfStart;
-                        console.log(`⏱️ [PERF] ========== TOTAL: ${totalDuration}ms ==========`);
-                        console.log(`⏱️ [PERF] STT=${sttDuration}ms | AI=${aiDuration}ms | TTS=${ttsDuration}ms\n`);
                         io.to(conversationId).emit("ai_voice_response", {
                             audio: audioBase64,
                             mimeType: mimeType,
