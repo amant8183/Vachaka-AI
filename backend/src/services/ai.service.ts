@@ -68,7 +68,7 @@ class AIService {
             messages,
             stream: true,
             temperature: 0.5, // Lower for faster, more focused responses
-            max_tokens: 512, // Reduced for faster voice responses
+            max_tokens: 256, // Shorter for faster voice responses and TTS
         });
 
         for await (const chunk of stream) {
@@ -138,7 +138,7 @@ class AIService {
                     model: "llama-3.1-8b-instant", // Fast model for low latency
                     messages: formattedMessages,
                     temperature: 0.5, // Lower for faster, more focused responses
-                    max_tokens: 512, // Reduced for faster voice responses
+                    max_tokens: 256, // Shorter for faster voice responses and TTS
                 });
                 return response.choices[0]?.message?.content || "";
             } else if (env.AI_PROVIDER === "openai" && this.openaiClient) {
