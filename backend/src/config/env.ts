@@ -17,6 +17,9 @@ interface EnvConfig {
     DEEPGRAM_API_KEY?: string;
     ASSEMBLYAI_API_KEY?: string;
 
+    // TTS Provider
+    TTS_PROVIDER: "groq" | "openai" | "deepgram";
+
     // Frontend
     FRONTEND_URL: string;
 }
@@ -45,6 +48,8 @@ export const env: EnvConfig = {
     STT_PROVIDER: (getEnvVar("STT_PROVIDER", "groq") as "whisper" | "deepgram" | "assemblyai" | "groq"),
     DEEPGRAM_API_KEY: getOptionalEnvVar("DEEPGRAM_API_KEY"),
     ASSEMBLYAI_API_KEY: getOptionalEnvVar("ASSEMBLYAI_API_KEY"),
+
+    TTS_PROVIDER: (getEnvVar("TTS_PROVIDER", "groq") as "groq" | "openai" | "deepgram"),
 
     FRONTEND_URL: getEnvVar("FRONTEND_URL", "http://localhost:3000"),
 };

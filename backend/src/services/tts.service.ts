@@ -1,28 +1,36 @@
 import env from "../config/env";
 import { logger } from "../utils/logger";
 import OpenAI from "openai";
+import Groq from "groq-sdk";
 import { createClient } from "@deepgram/sdk";
 
 class TTSService {
     private openaiClient?: OpenAI;
+    private groqClient?: Groq;
     private deepgramClient?: ReturnType<typeof createClient>;
-    private provider: "openai" | "deepgram" | "none";
+    private provider: "groq" | "openai" | "deepgram" | "none";
 
     constructor() {
-        // Determine which TTS provider to use
-        if (env.OPENAI_API_KEY) {
+        // Determine which TTS provider to use based on TTS_PROVIDER config
+        if (env.TTS_PROVIDER === "groq" && env.GROQ_API_KEY) {
+            this.groqClient = new Groq({
+                apiKey: env.GROQ_API_KEY,
+            });
+            this.provider = "groq";
+            logger.info("Groq TTS (Orpheus) initialized");
+        } else if (env.TTS_PROVIDER === "openai" && env.OPENAI_API_KEY) {
             this.openaiClient = new OpenAI({
                 apiKey: env.OPENAI_API_KEY,
             });
             this.provider = "openai";
             logger.info("OpenAI TTS initialized");
-        } else if (env.DEEPGRAM_API_KEY) {
+        } else if (env.TTS_PROVIDER === "deepgram" && env.DEEPGRAM_API_KEY) {
             this.deepgramClient = createClient(env.DEEPGRAM_API_KEY);
             this.provider = "deepgram";
             logger.info("Deepgram TTS initialized");
         } else {
             this.provider = "none";
-            logger.warn("No TTS provider configured - missing API keys");
+            logger.warn("No TTS provider configured - check TTS_PROVIDER and API keys");
         }
     }
 
@@ -32,7 +40,9 @@ class TTSService {
      */
     async textToSpeech(text: string): Promise<Buffer> {
         try {
-            if (this.provider === "openai") {
+            if (this.provider === "groq") {
+                return await this.textToSpeechGroq(text);
+            } else if (this.provider === "openai") {
                 return await this.textToSpeechOpenAI(text);
             } else if (this.provider === "deepgram") {
                 return await this.textToSpeechDeepgram(text);
@@ -43,6 +53,29 @@ class TTSService {
             logger.error("Error converting text to speech:", error);
             throw error;
         }
+    }
+
+    /**
+     * Convert text to speech using Groq TTS (Orpheus)
+     */
+    private async textToSpeechGroq(text: string): Promise<Buffer> {
+        if (!this.groqClient) {
+            throw new Error("Groq client not initialized");
+        }
+
+        logger.info(`Converting text to speech with Groq (Orpheus): "${text.substring(0, 50)}..."`);
+
+        const response = await this.groqClient.audio.speech.create({
+            model: "canopylabs/orpheus-v1-english",
+            voice: "troy",
+            input: text,
+            response_format: "wav",
+        });
+
+        const buffer = Buffer.from(await response.arrayBuffer());
+        logger.info(`Groq TTS conversion complete, buffer size: ${buffer.length} bytes`);
+
+        return buffer;
     }
 
     /**

@@ -113,8 +113,8 @@ export const initializeWebSocket = (httpServer: HTTPServer): SocketIOServer => {
                         // Convert buffer to base64 for transmission
                         const audioBase64 = audioBuffer.toString("base64");
 
-                        // Emit audio response (WAV for Deepgram, MP3 for OpenAI)
-                        const mimeType = ttsService.getProvider() === "deepgram" ? "audio/wav" : "audio/mpeg";
+                        // Emit audio response (WAV for Deepgram/Groq, MP3 for OpenAI)
+                        const mimeType = ["deepgram", "groq"].includes(ttsService.getProvider()) ? "audio/wav" : "audio/mpeg";
                         io.to(conversationId).emit("ai_voice_response", {
                             audio: audioBase64,
                             mimeType: mimeType,
@@ -244,8 +244,8 @@ export const initializeWebSocket = (httpServer: HTTPServer): SocketIOServer => {
                         const ttsStart = Date.now();
                         console.log(`⏱️ [PERF] TTS Starting (${fullResponse.length} chars)...`);
 
-                        // Emit audio response (WAV for Deepgram, MP3 for OpenAI)
-                        const mimeType = ttsService.getProvider() === "deepgram" ? "audio/wav" : "audio/mpeg";
+                        // Emit audio response (WAV for Deepgram/Groq, MP3 for OpenAI)
+                        const mimeType = ["deepgram", "groq"].includes(ttsService.getProvider()) ? "audio/wav" : "audio/mpeg";
                         const ttsDuration = Date.now() - ttsStart;
                         console.log(`⏱️ [PERF] TTS: ${ttsDuration}ms | Audio: ${audioBuffer.length} bytes`);
                         const totalDuration = Date.now() - perfStart;
