@@ -6,6 +6,7 @@ export type ConversationMode = "casual" | "interview";
 export interface IConversation extends Document {
     userId: Types.ObjectId;
     mode: ConversationMode;
+    ttsProvider?: "groq" | "deepgram";
     messages: IMessage[];
     startedAt: Date;
     updatedAt: Date;
@@ -24,6 +25,11 @@ const ConversationSchema = new Schema<IConversation>(
             enum: ["casual", "interview"],
             required: true,
             default: "casual",
+        },
+        ttsProvider: {
+            type: String,
+            enum: ["groq", "deepgram"],
+            default: "deepgram",
         },
         messages: {
             type: [MessageSchema],

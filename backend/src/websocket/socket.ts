@@ -108,19 +108,20 @@ export const initializeWebSocket = (httpServer: HTTPServer): SocketIOServer => {
                 if (ttsService.isAvailable()) {
                     try {
                         logger.info("Generating TTS audio for AI response");
-                        const audioBuffer = await ttsService.textToSpeech(fullResponse);
+                        const ttsProvider = conversation.ttsProvider || "deepgram";
+                        const audioBuffer = await ttsService.textToSpeech(fullResponse, ttsProvider);
 
                         // Convert buffer to base64 for transmission
                         const audioBase64 = audioBuffer.toString("base64");
 
                         // Emit audio response (WAV for Deepgram/Groq, MP3 for OpenAI)
-                        const mimeType = ["deepgram", "groq"].includes(ttsService.getProvider()) ? "audio/wav" : "audio/mpeg";
+                        const mimeType = ["deepgram", "groq"].includes(ttsProvider) ? "audio/wav" : "audio/mpeg";
                         io.to(conversationId).emit("ai_voice_response", {
                             audio: audioBase64,
                             mimeType: mimeType,
                         });
 
-                        logger.info("TTS audio sent to client");
+                        logger.info(`TTS audio sent to client (provider: ${ttsProvider})`);
                     } catch (ttsError) {
                         logger.error("Error generating TTS audio:", ttsError);
                         // Don't fail the whole request if TTS fails
@@ -237,7 +238,8 @@ export const initializeWebSocket = (httpServer: HTTPServer): SocketIOServer => {
                 if (ttsService.isAvailable()) {
                     try {
                         logger.info("Generating TTS audio for voice response");
-                        const audioBuffer = await ttsService.textToSpeech(fullResponse);
+                        const ttsProvider = conversation.ttsProvider || "deepgram";
+                        const audioBuffer = await ttsService.textToSpeech(fullResponse, ttsProvider);
 
                         // Convert buffer to base64 for transmission
                         const audioBase64 = audioBuffer.toString("base64");
@@ -245,7 +247,7 @@ export const initializeWebSocket = (httpServer: HTTPServer): SocketIOServer => {
                         console.log(`⏱️ [PERF] TTS Starting (${fullResponse.length} chars)...`);
 
                         // Emit audio response (WAV for Deepgram/Groq, MP3 for OpenAI)
-                        const mimeType = ["deepgram", "groq"].includes(ttsService.getProvider()) ? "audio/wav" : "audio/mpeg";
+                        const mimeType = ["deepgram", "groq"].includes(ttsProvider) ? "audio/wav" : "audio/mpeg";
                         const ttsDuration = Date.now() - ttsStart;
                         console.log(`⏱️ [PERF] TTS: ${ttsDuration}ms | Audio: ${audioBuffer.length} bytes`);
                         const totalDuration = Date.now() - perfStart;
@@ -256,7 +258,7 @@ export const initializeWebSocket = (httpServer: HTTPServer): SocketIOServer => {
                             mimeType: mimeType,
                         });
 
-                        logger.info("TTS audio sent to client");
+                        logger.info(`TTS audio sent to client (provider: ${ttsProvider})`);
                     } catch (ttsError) {
                         logger.error("Error generating TTS audio:", ttsError);
                     }

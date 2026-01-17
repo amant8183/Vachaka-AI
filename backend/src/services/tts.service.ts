@@ -11,40 +11,83 @@ class TTSService {
     private provider: "groq" | "openai" | "deepgram" | "none";
 
     constructor() {
-        // Determine which TTS provider to use based on TTS_PROVIDER config
-        if (env.TTS_PROVIDER === "groq" && env.GROQ_API_KEY) {
+        // Initialize ALL available TTS providers (not just one)
+        // This allows dynamic provider switching per conversation
+
+        let initializedCount = 0;
+
+        if (env.GROQ_API_KEY) {
             this.groqClient = new Groq({
                 apiKey: env.GROQ_API_KEY,
             });
-            this.provider = "groq";
+            initializedCount++;
             logger.info("Groq TTS (Orpheus) initialized");
-        } else if (env.TTS_PROVIDER === "openai" && env.OPENAI_API_KEY) {
+        }
+
+        if (env.OPENAI_API_KEY) {
             this.openaiClient = new OpenAI({
                 apiKey: env.OPENAI_API_KEY,
             });
-            this.provider = "openai";
+            initializedCount++;
             logger.info("OpenAI TTS initialized");
-        } else if (env.TTS_PROVIDER === "deepgram" && env.DEEPGRAM_API_KEY) {
+        }
+
+        if (env.DEEPGRAM_API_KEY) {
             this.deepgramClient = createClient(env.DEEPGRAM_API_KEY);
-            this.provider = "deepgram";
+            initializedCount++;
             logger.info("Deepgram TTS initialized");
+        }
+
+        // Set default provider based on TTS_PROVIDER config or first available
+        if (env.TTS_PROVIDER === "groq" && this.groqClient) {
+            this.provider = "groq";
+        } else if (env.TTS_PROVIDER === "openai" && this.openaiClient) {
+            this.provider = "openai";
+        } else if (env.TTS_PROVIDER === "deepgram" && this.deepgramClient) {
+            this.provider = "deepgram";
+        } else if (this.groqClient) {
+            this.provider = "groq";
+        } else if (this.openaiClient) {
+            this.provider = "openai";
+        } else if (this.deepgramClient) {
+            this.provider = "deepgram";
         } else {
             this.provider = "none";
-            logger.warn("No TTS provider configured - check TTS_PROVIDER and API keys");
+        }
+
+        if (initializedCount === 0) {
+            logger.warn("No TTS providers initialized - check API keys");
+        } else {
+            logger.info(`Default TTS provider: ${this.provider} (${initializedCount} providers available)`);
         }
     }
 
     /**
      * Convert text to speech
      * Returns audio buffer
+     * @param text - Text to convert to speech
+     * @param providerOverride - Optional provider override for per-conversation selection
      */
-    async textToSpeech(text: string): Promise<Buffer> {
+    async textToSpeech(text: string, providerOverride?: "groq" | "deepgram"): Promise<Buffer> {
         try {
-            if (this.provider === "groq") {
+            const provider = providerOverride || this.provider;
+
+            // Validate provider is initialized
+            if (provider === "groq" && !this.groqClient) {
+                throw new Error("Groq TTS not initialized - check GROQ_API_KEY");
+            }
+            if (provider === "deepgram" && !this.deepgramClient) {
+                throw new Error("Deepgram TTS not initialized - check DEEPGRAM_API_KEY");
+            }
+            if (provider === "openai" && !this.openaiClient) {
+                throw new Error("OpenAI TTS not initialized - check OPENAI_API_KEY");
+            }
+
+            if (provider === "groq") {
                 return await this.textToSpeechGroq(text);
-            } else if (this.provider === "openai") {
+            } else if (provider === "openai") {
                 return await this.textToSpeechOpenAI(text);
-            } else if (this.provider === "deepgram") {
+            } else if (provider === "deepgram") {
                 return await this.textToSpeechDeepgram(text);
             } else {
                 throw new Error("No TTS provider available");
@@ -141,6 +184,7 @@ class TTSService {
 
         return buffer;
     }
+
 
     /**
      * Check if TTS is available

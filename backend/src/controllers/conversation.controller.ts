@@ -9,7 +9,7 @@ import { logger } from "../utils/logger";
  */
 export const createConversation = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { userId, mode } = req.body;
+        const { userId, mode, ttsProvider } = req.body;
 
         logger.info(`Received conversation creation request - userId: ${userId}, mode: ${mode}, body:`, req.body);
 
@@ -26,6 +26,7 @@ export const createConversation = async (req: Request, res: Response): Promise<v
         const conversation = await Conversation.create({
             userId,
             mode,
+            ttsProvider,  // Include TTS provider preference
             messages: [],
             isActive: true,
         });

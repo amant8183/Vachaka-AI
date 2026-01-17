@@ -1,15 +1,18 @@
 'use client';
 
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { MessageSquare, Brain } from 'lucide-react';
+import { MessageSquare, Brain, } from 'lucide-react';
 import { tokens } from '@/lib/design-tokens';
 import { ConversationMode } from '@/types';
 
 interface ModeSelectorProps {
-    onSelectMode: (mode: ConversationMode) => void;
+    onSelectMode: (mode: ConversationMode, ttsProvider: "groq" | "deepgram") => void;
 }
 
 export function ModeSelector({ onSelectMode }: ModeSelectorProps) {
+    const [selectedTtsProvider, setSelectedTtsProvider] = useState<"groq" | "deepgram">("deepgram");
+
     const modes = [
         {
             id: 'casual' as ConversationMode,
@@ -25,6 +28,11 @@ export function ModeSelector({ onSelectMode }: ModeSelectorProps) {
             description: 'Professional interview practice with feedback',
             accent: tokens.colors.aiPrimary,
         },
+    ];
+
+    const ttsProviders = [
+        { id: 'groq' as const, name: 'Groq (Orpheus)', description: 'Natural, expressive' },
+        { id: 'deepgram' as const, name: 'Deepgram (Aura)', description: 'Professional, clear' },
     ];
 
     return (
@@ -60,11 +68,51 @@ export function ModeSelector({ onSelectMode }: ModeSelectorProps) {
                         <ModeCard
                             key={mode.id}
                             mode={mode}
-                            onSelect={() => onSelectMode(mode.id)}
+                            onSelect={() => onSelectMode(mode.id, selectedTtsProvider)}
                             delay={index * 0.1}
                         />
                     ))}
                 </div>
+
+                {/* TTS Provider selector */}
+                <motion.div
+                    className="space-y-4"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.3 }}
+                >
+                    <p
+                        className="text-center text-sm font-medium"
+                        style={{ color: tokens.colors.textSecondary }}
+                    >
+                        AI Voice Provider
+                    </p>
+                    <div className="flex justify-center gap-3">
+                        {ttsProviders.map((provider) => (
+                            <button
+                                key={provider.id}
+                                onClick={() => setSelectedTtsProvider(provider.id)}
+                                className="px-6 py-3 rounded-lg transition-all text-sm font-medium"
+                                style={{
+                                    backgroundColor: selectedTtsProvider === provider.id
+                                        ? tokens.colors.surface
+                                        : 'transparent',
+                                    border: `1px solid ${selectedTtsProvider === provider.id
+                                        ? tokens.colors.userPrimary
+                                        : tokens.colors.border}`,
+                                    color: selectedTtsProvider === provider.id
+                                        ? tokens.colors.textPrimary
+                                        : tokens.colors.textSecondary,
+                                }}
+                            >
+                                <div className="text-center">
+                                    <div>{provider.name}</div>
+                                    <div className="text-xs opacity-70 mt-1">{provider.description}</div>
+                                </div>
+                            </button>
+                        ))}
+                    </div>
+                </motion.div>
             </div>
         </div>
     );

@@ -200,7 +200,7 @@ export default function Dashboard() {
   }, [isConnected, handleDisconnect]);
 
   // ==================== CONVERSATION CREATION (UNCHANGED) ====================
-  const createNewConversation = async () => {
+  const createNewConversation = async (ttsProvider: "groq" | "deepgram") => {
     try {
       const userResponse = await fetch(`${API_CONFIG.BACKEND_URL}/api/users`, {
         method: "POST",
@@ -219,13 +219,14 @@ export default function Dashboard() {
         return;
       }
 
-      console.log("Creating conversation with:", { userId, mode: selectedMode });
+      console.log("Creating conversation with:", { userId, mode: selectedMode, ttsProvider });
       const response = await fetch(`${API_CONFIG.BACKEND_URL}/api/conversations`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId: userId,
           mode: selectedMode,
+          ttsProvider: ttsProvider,
         }),
       });
 
@@ -259,9 +260,9 @@ export default function Dashboard() {
   if (showModeSelector) {
     return (
       <ModeSelector
-        onSelectMode={(mode) => {
+        onSelectMode={(mode, ttsProvider) => {
           setSelectedMode(mode);
-          createNewConversation();
+          createNewConversation(ttsProvider);
         }}
       />
     );
