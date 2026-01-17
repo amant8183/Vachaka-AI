@@ -37,25 +37,36 @@ export function ModeSelector({ onSelectMode }: ModeSelectorProps) {
 
     return (
         <div
-            className="min-h-screen flex items-center justify-center p-8"
+            className="min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8 relative"
             style={{ backgroundColor: tokens.colors.background }}
         >
-            <div className="max-w-4xl w-full space-y-12">
+            {/* Diagonal grid overlay */}
+            <div
+                className="absolute inset-0 opacity-[0.03] pointer-events-none"
+                style={{
+                    backgroundImage: `repeating-linear-gradient(45deg, transparent, transparent 50px, ${tokens.colors.textPrimary} 50px, ${tokens.colors.textPrimary} 51px), repeating-linear-gradient(-45deg, transparent, transparent 50px, ${tokens.colors.textPrimary} 50px, ${tokens.colors.textPrimary} 51px)`,
+                }}
+            />
+
+            <div className="max-w-4xl w-full space-y-8 sm:space-y-10 md:space-y-12 relative z-10">
                 {/* Header */}
                 <motion.div
-                    className="text-center space-y-3"
+                    className="text-center space-y-2 sm:space-y-3 md:space-y-4 px-2"
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
                 >
                     <h1
-                        className="text-5xl font-bold tracking-tight"
-                        style={{ color: tokens.colors.textPrimary }}
+                        className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight"
+                        style={{
+                            color: tokens.colors.textPrimary,
+                            letterSpacing: '-0.02em',
+                        }}
                     >
-                        Voice AI
+                        Vachaka AI
                     </h1>
                     <p
-                        className="text-base"
+                        className="text-base sm:text-lg"
                         style={{ color: tokens.colors.textSecondary }}
                     >
                         Choose your conversation mode
@@ -63,7 +74,7 @@ export function ModeSelector({ onSelectMode }: ModeSelectorProps) {
                 </motion.div>
 
                 {/* Mode cards */}
-                <div className="grid md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 md:gap-6">
                     {modes.map((mode, index) => (
                         <ModeCard
                             key={mode.id}
@@ -76,38 +87,54 @@ export function ModeSelector({ onSelectMode }: ModeSelectorProps) {
 
                 {/* TTS Provider selector */}
                 <motion.div
-                    className="space-y-4"
+                    className="space-y-3 sm:space-y-4"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4, delay: 0.3 }}
                 >
                     <p
-                        className="text-center text-sm font-medium"
-                        style={{ color: tokens.colors.textSecondary }}
+                        className="text-center text-xs sm:text-sm font-medium uppercase tracking-wider"
+                        style={{ color: tokens.colors.textTertiary }}
                     >
                         AI Voice Provider
                     </p>
-                    <div className="flex justify-center gap-3">
+                    <div className="flex flex-col sm:flex-row justify-center gap-3 px-2">
                         {ttsProviders.map((provider) => (
                             <button
                                 key={provider.id}
                                 onClick={() => setSelectedTtsProvider(provider.id)}
-                                className="px-6 py-3 rounded-lg transition-all text-sm font-medium"
+                                className="group relative px-6 sm:px-8 py-3 sm:py-4 rounded-lg transition-all duration-300 text-sm font-medium overflow-hidden w-full sm:w-auto"
                                 style={{
-                                    backgroundColor: selectedTtsProvider === provider.id
-                                        ? tokens.colors.surface
-                                        : 'transparent',
-                                    border: `1px solid ${selectedTtsProvider === provider.id
-                                        ? tokens.colors.userPrimary
+                                    backgroundColor: '#0a0a0b',
+                                    border: `1.5px solid ${selectedTtsProvider === provider.id
+                                        ? 'rgba(220, 38, 38, 0.5)'
                                         : tokens.colors.border}`,
                                     color: selectedTtsProvider === provider.id
                                         ? tokens.colors.textPrimary
                                         : tokens.colors.textSecondary,
                                 }}
                             >
-                                <div className="text-center">
-                                    <div>{provider.name}</div>
-                                    <div className="text-xs opacity-70 mt-1">{provider.description}</div>
+                                {/* Hover effect */}
+                                {selectedTtsProvider !== provider.id && (
+                                    <div
+                                        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                                        style={{
+                                            backgroundColor: 'rgba(220, 38, 38, 0.05)',
+                                        }}
+                                    />
+                                )}
+                                <div className="text-center relative z-10">
+                                    <div className="font-semibold">{provider.name}</div>
+                                    <div
+                                        className="text-xs mt-1"
+                                        style={{
+                                            color: selectedTtsProvider === provider.id
+                                                ? tokens.colors.textSecondary
+                                                : tokens.colors.textTertiary
+                                        }}
+                                    >
+                                        {provider.description}
+                                    </div>
                                 </div>
                             </button>
                         ))}
@@ -136,41 +163,45 @@ function ModeCard({ mode, onSelect, delay }: ModeCardProps) {
     return (
         <motion.button
             onClick={onSelect}
-            className="group relative p-8 rounded-xl text-left overflow-hidden"
+            className="group relative p-6 sm:p-7 md:p-8 rounded-xl text-left overflow-hidden transition-all duration-300"
             style={{
-                backgroundColor: tokens.colors.surface,
+                backgroundColor: '#0a0a0b',
                 border: `1px solid ${tokens.colors.border}`,
             }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay }}
-            whileHover={{ scale: 1.02 }}
+            transition={{ duration: 0.1, delay }}
+            whileHover={{
+                scale: 1.02,
+                borderColor: mode.accent,
+            }}
             whileTap={{ scale: 0.98 }}
         >
             {/* Hover glow */}
             <div
                 className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                 style={{
-                    background: `radial-gradient(circle at 50% 0%, ${mode.accent}15, transparent 70%)`,
+                    background: `radial-gradient(circle at 50% 0%, ${mode.accent}10, transparent 70%)`,
                 }}
             />
 
             {/* Content */}
-            <div className="relative space-y-4">
+            <div className="relative space-y-4 sm:space-y-5 md:space-y-6">
                 {/* Icon */}
                 <div
-                    className="w-12 h-12 rounded-full flex items-center justify-center"
+                    className="w-12 h-12 sm:w-13 sm:h-13 md:w-14 md:h-14 rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110"
                     style={{
-                        backgroundColor: `${mode.accent}20`,
+                        backgroundColor: `${mode.accent}15`,
+                        border: `1px solid ${mode.accent}30`,
                     }}
                 >
-                    <Icon className="w-6 h-6" style={{ color: mode.accent }} />
+                    <Icon className="w-6 h-6 sm:w-6.5 sm:h-6.5 md:w-7 md:h-7" style={{ color: mode.accent }} />
                 </div>
 
                 {/* Text */}
                 <div className="space-y-2">
                     <h3
-                        className="text-2xl font-semibold"
+                        className="text-xl sm:text-2xl font-bold"
                         style={{ color: tokens.colors.textPrimary }}
                     >
                         {mode.title}
@@ -184,12 +215,10 @@ function ModeCard({ mode, onSelect, delay }: ModeCardProps) {
                 </div>
 
                 {/* Arrow indicator */}
-                <div className="pt-2">
-                    <motion.div
-                        className="inline-flex items-center gap-2 text-sm font-medium"
+                <div className="pt-1 sm:pt-2">
+                    <div
+                        className="inline-flex items-center gap-2 text-sm font-medium group-hover:translate-x-1 transition-transform duration-300"
                         style={{ color: mode.accent }}
-                        initial={{ x: 0 }}
-                        whileHover={{ x: 4 }}
                     >
                         Start
                         <svg
@@ -205,7 +234,7 @@ function ModeCard({ mode, onSelect, delay }: ModeCardProps) {
                                 d="M9 5l7 7-7 7"
                             />
                         </svg>
-                    </motion.div>
+                    </div>
                 </div>
             </div>
         </motion.button>

@@ -269,27 +269,72 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen overflow-hidden" style={{ backgroundColor: '#0a0a0a' }}>
+    <div className="min-h-screen overflow-hidden relative" style={{ backgroundColor: '#0a0a0a' }}>
+      {/* Diagonal grid overlay */}
+      <div
+        className="absolute inset-0 opacity-[0.02] pointer-events-none"
+        style={{
+          backgroundImage: `repeating-linear-gradient(45deg, transparent, transparent 50px, #e5e5e5 50px, #e5e5e5 51px), repeating-linear-gradient(-45deg, transparent, transparent 50px, #e5e5e5 50px, #e5e5e5 51px)`,
+        }}
+      />
+
       {/* Main content */}
-      <div className="pt-20 pb-24 min-h-screen flex items-center justify-center">
+      <div className="relative z-10 pt-20 pb-24 min-h-screen flex items-center justify-center">
         {!isCallActive ? (
           /* Start screen */
-          <div className="text-center space-y-8">
-            <h2
-              className="text-3xl font-semibold"
-              style={{ color: '#e5e5e5' }}
-            >
-              {mode === "interview" ? "Ready for Interview?" : "Start Conversation"}
-            </h2>
+          <div className="text-center space-y-10">
+            <div className="space-y-4">
+              <h2
+                className="text-4xl md:text-5xl font-bold tracking-tight"
+                style={{
+                  color: '#e5e5e5',
+                  letterSpacing: '-0.02em',
+                }}
+              >
+                {mode === "interview" ? "Ready for Interview?" : "Start Conversation"}
+              </h2>
+              <p
+                className="text-lg"
+                style={{ color: 'rgba(229, 229, 229, 0.6)' }}
+              >
+                {mode === "interview"
+                  ? "Practice your interview skills with AI feedback"
+                  : "Have a natural voice conversation with AI"}
+              </p>
+            </div>
+
             <button
               onClick={startCall}
-              className="px-10 py-4 rounded-full text-lg font-medium transition-all hover:scale-105"
+              className="group relative px-12 py-4 rounded-lg text-lg font-medium transition-all duration-300 hover:scale-105 overflow-hidden"
               style={{
                 backgroundColor: '#dc2626',
                 color: '#ffffff',
+                boxShadow: '0 10px 40px -10px rgba(220, 38, 38, 0.5)',
               }}
             >
-              Start
+              {/* Hover gradient */}
+              <div
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                style={{
+                  background: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',
+                }}
+              />
+              <span className="relative z-10 flex items-center gap-2">
+                Start Call
+                <svg
+                  className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-200"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </span>
             </button>
           </div>
         ) : (
@@ -305,25 +350,69 @@ export default function Dashboard() {
               {/* Pause call button */}
               <button
                 onClick={stopCall}
-                className="px-6 py-3 rounded-full text-sm font-medium transition-all hover:opacity-80"
+                className="group relative px-6 py-3 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-105 overflow-hidden"
                 style={{
-                  backgroundColor: '#404040',
+                  backgroundColor: 'rgba(64, 64, 64, 0.5)',
+                  border: '1px solid rgba(229, 229, 229, 0.1)',
                   color: '#e5e5e5',
                 }}
               >
-                ⏸ Pause Call
+                <div
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  style={{
+                    backgroundColor: 'rgba(64, 64, 64, 0.8)',
+                  }}
+                />
+                <span className="relative z-10 flex items-center gap-2">
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M10 9v6m4-6v6"
+                    />
+                  </svg>
+                  Pause Call
+                </span>
               </button>
 
               {/* End call button */}
               <button
                 onClick={endConversation}
-                className="px-6 py-3 rounded-full text-sm font-medium transition-all hover:opacity-80"
+                className="group relative px-6 py-3 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-105 overflow-hidden"
                 style={{
                   backgroundColor: '#991b1b',
+                  border: '1px solid rgba(153, 27, 27, 0.5)',
                   color: '#ffffff',
                 }}
               >
-                ✖ End Call
+                <div
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  style={{
+                    background: 'linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%)',
+                  }}
+                />
+                <span className="relative z-10 flex items-center gap-2">
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                  End Call
+                </span>
               </button>
             </div>
           </div>
