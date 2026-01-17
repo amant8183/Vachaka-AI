@@ -170,46 +170,88 @@ export function VoiceOrb({ state, volume = 0, onClick }: VoiceOrbProps) {
                         </div>
                     )}
 
-                    {/* Processing: Slow internal rotation/breathing - must hold 4 seconds */}
+                    {/* Processing: VERY PROMINENT green pulsing animation */}
                     {state === 'processing' && (
                         <>
+                            {/* Large outer glow */}
                             <motion.div
                                 className="rounded-full absolute"
                                 style={{
-                                    width: '70px',
-                                    height: '70px',
-                                    backgroundColor: tokens.colors.processingPrimary,
-                                    opacity: 0.35,
+                                    width: '120px',
+                                    height: '120px',
+                                    backgroundColor: '#10b981', // Emerald green
+                                    opacity: 0.3,
+                                    filter: 'blur(20px)',
                                 }}
                                 animate={{
-                                    scale: [1, 1.15, 1],
-                                    opacity: [0.35, 0.5, 0.35],
-                                    rotate: [0, 180, 360],
-                                }}
-                                transition={{
-                                    duration: 4, // Matches backend processing time
-                                    repeat: Infinity,
-                                    ease: tokens.animation.easing.standard,
-                                }}
-                            />
-                            {/* Inner particle effect */}
-                            <motion.div
-                                className="rounded-full absolute"
-                                style={{
-                                    width: '40px',
-                                    height: '40px',
-                                    backgroundColor: tokens.colors.processingPrimary,
-                                    opacity: 0.2,
-                                }}
-                                animate={{
-                                    scale: [1, 0.8, 1],
-                                    opacity: [0.2, 0.4, 0.2],
+                                    scale: [1, 1.3, 1],
+                                    opacity: [0.3, 0.5, 0.3],
                                 }}
                                 transition={{
                                     duration: 2,
                                     repeat: Infinity,
                                     ease: tokens.animation.easing.standard,
-                                    delay: 0.5,
+                                }}
+                            />
+                            {/* Outer rotating ring */}
+                            <motion.div
+                                className="rounded-full absolute"
+                                style={{
+                                    width: '100px',
+                                    height: '100px',
+                                    backgroundColor: '#22c55e', // Bright green
+                                    opacity: 0.6,
+                                }}
+                                animate={{
+                                    scale: [1, 1.25, 1],
+                                    opacity: [0.6, 0.8, 0.6],
+                                    rotate: [0, 180, 360],
+                                }}
+                                transition={{
+                                    duration: 3,
+                                    repeat: Infinity,
+                                    ease: tokens.animation.easing.standard,
+                                }}
+                            />
+                            {/* Middle pulsing sphere */}
+                            <motion.div
+                                className="rounded-full absolute"
+                                style={{
+                                    width: '70px',
+                                    height: '70px',
+                                    backgroundColor: '#4ade80', // Very bright green
+                                    opacity: 0.8,
+                                }}
+                                animate={{
+                                    scale: [1, 1.2, 1],
+                                    opacity: [0.8, 1, 0.8],
+                                }}
+                                transition={{
+                                    duration: 2,
+                                    repeat: Infinity,
+                                    ease: tokens.animation.easing.standard,
+                                    delay: 0.3,
+                                }}
+                            />
+                            {/* Inner bright core - NEON GREEN */}
+                            <motion.div
+                                className="rounded-full absolute"
+                                style={{
+                                    width: '40px',
+                                    height: '40px',
+                                    backgroundColor: '#86efac', // Neon green
+                                    opacity: 1,
+                                    boxShadow: '0 0 30px rgba(34, 197, 94, 0.8)',
+                                }}
+                                animate={{
+                                    scale: [1, 0.85, 1],
+                                    opacity: [1, 0.9, 1],
+                                }}
+                                transition={{
+                                    duration: 1.5,
+                                    repeat: Infinity,
+                                    ease: tokens.animation.easing.standard,
+                                    delay: 0.6,
                                 }}
                             />
                         </>

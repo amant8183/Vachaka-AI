@@ -21,7 +21,9 @@ export default function Dashboard() {
   const [autoMode] = useState(true); // Always auto mode
   const [isCallActive, setIsCallActive] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [isProcessingAudio, setIsProcessingAudio] = useState(false); // Manual processing state
   const isCallActiveRef = useRef(false);
+  const prevSpeakingRef = useRef(false);
 
   const {
     isConnected,
@@ -99,6 +101,22 @@ export default function Dashboard() {
     window.addEventListener("ai_voice_response", handleVoiceResponse);
     return () => window.removeEventListener("ai_voice_response", handleVoiceResponse);
   }, [playAudio]);
+
+  // Set processing state when voice recording ends
+  useEffect(() => {
+    if (voiceState === "processing" || voiceState === "responding") {
+      setIsProcessingAudio(true);
+    }
+  }, [voiceState]);
+
+  // Clear processing state when AI starts speaking
+  useEffect(() => {
+    if (isSpeaking && !prevSpeakingRef.current) {
+      setIsProcessingAudio(false);
+    }
+
+    prevSpeakingRef.current = isSpeaking;
+  }, [isSpeaking]);
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -252,8 +270,8 @@ export default function Dashboard() {
   // Map voice states to orb states
   const getOrbState = (): VoiceState => {
     if (voiceState === "recording") return "listening";
-    if (voiceState === "processing" || voiceState === "responding") return "processing";
     if (isSpeaking) return "speaking";
+    if (isProcessingAudio) return "processing";
     return "idle";
   };
 
@@ -282,10 +300,10 @@ export default function Dashboard() {
       <div className="relative z-10 pt-20 pb-24 min-h-screen flex items-center justify-center">
         {!isCallActive ? (
           /* Start screen */
-          <div className="text-center space-y-10">
-            <div className="space-y-4">
+          <div className="text-center space-y-8 sm:space-y-10 px-4 max-w-3xl mx-auto">
+            <div className="space-y-3 sm:space-y-4">
               <h2
-                className="text-4xl md:text-5xl font-bold tracking-tight"
+                className="text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight"
                 style={{
                   color: '#e5e5e5',
                   letterSpacing: '-0.02em',
@@ -294,8 +312,8 @@ export default function Dashboard() {
                 {mode === "interview" ? "Ready for Interview?" : "Start Conversation"}
               </h2>
               <p
-                className="text-lg"
-                style={{ color: 'rgba(229, 229, 229, 0.6)' }}
+                className="text-lg sm:text-xl md:text-2xl"
+                style={{ color: '#737373' }}
               >
                 {mode === "interview"
                   ? "Practice your interview skills with AI feedback"
@@ -303,54 +321,56 @@ export default function Dashboard() {
               </p>
             </div>
 
-            <button
-              onClick={startCall}
-              className="group relative px-12 py-4 rounded-lg text-lg font-medium transition-all duration-300 hover:scale-105 overflow-hidden"
-              style={{
-                backgroundColor: '#dc2626',
-                color: '#ffffff',
-                boxShadow: '0 10px 40px -10px rgba(220, 38, 38, 0.5)',
-              }}
-            >
-              {/* Hover gradient */}
-              <div
-                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+            <div className="pt-2 sm:pt-4">
+              <button
+                onClick={startCall}
+                className="group relative px-12 py-4 sm:px-14 sm:py-5 rounded-xl text-lg sm:text-xl font-semibold transition-all duration-300 hover:scale-105 overflow-hidden"
                 style={{
-                  background: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',
+                  backgroundColor: '#dc2626',
+                  color: '#ffffff',
+                  boxShadow: '0 20px 60px -15px rgba(220, 38, 38, 0.6)',
                 }}
-              />
-              <span className="relative z-10 flex items-center gap-2">
-                Start Call
-                <svg
-                  className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-200"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </span>
-            </button>
+              >
+                {/* Hover gradient */}
+                <div
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  style={{
+                    background: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',
+                  }}
+                />
+                <span className="relative z-10 flex items-center gap-3">
+                  Start Call
+                  <svg
+                    className="w-5 h-5 sm:w-6 sm:h-6 group-hover:translate-x-1 transition-transform duration-200"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </span>
+              </button>
+            </div>
           </div>
         ) : (
           /* Voice orb with controls */
-          <div className="flex flex-col items-center gap-12">
+          <div className="flex flex-col items-center gap-12 sm:gap-16 md:gap-20 px-4">
             <VoiceOrb
               state={getOrbState()}
               volume={vad.volume}
             />
 
             {/* Control buttons below orb */}
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 w-full sm:w-auto">
               {/* Pause call button */}
               <button
                 onClick={stopCall}
-                className="group relative px-6 py-3 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-105 overflow-hidden"
+                className="group relative px-6 py-3 sm:px-7 sm:py-3.5 rounded-lg text-sm sm:text-base font-medium transition-all duration-300 hover:scale-105 overflow-hidden w-full sm:w-auto"
                 style={{
                   backgroundColor: 'rgba(64, 64, 64, 0.5)',
                   border: '1px solid rgba(229, 229, 229, 0.1)',
@@ -363,9 +383,9 @@ export default function Dashboard() {
                     backgroundColor: 'rgba(64, 64, 64, 0.8)',
                   }}
                 />
-                <span className="relative z-10 flex items-center gap-2">
+                <span className="relative z-10 flex items-center justify-center gap-2">
                   <svg
-                    className="w-4 h-4"
+                    className="w-4 h-4 sm:w-5 sm:h-5"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -384,7 +404,7 @@ export default function Dashboard() {
               {/* End call button */}
               <button
                 onClick={endConversation}
-                className="group relative px-6 py-3 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-105 overflow-hidden"
+                className="group relative px-6 py-3 sm:px-7 sm:py-3.5 rounded-lg text-sm sm:text-base font-medium transition-all duration-300 hover:scale-105 overflow-hidden w-full sm:w-auto"
                 style={{
                   backgroundColor: '#991b1b',
                   border: '1px solid rgba(153, 27, 27, 0.5)',
@@ -397,9 +417,9 @@ export default function Dashboard() {
                     background: 'linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%)',
                   }}
                 />
-                <span className="relative z-10 flex items-center gap-2">
+                <span className="relative z-10 flex items-center justify-center gap-2">
                   <svg
-                    className="w-4 h-4"
+                    className="w-4 h-4 sm:w-5 sm:h-5"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"

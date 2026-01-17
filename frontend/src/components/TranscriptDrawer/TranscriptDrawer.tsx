@@ -50,17 +50,6 @@ export function TranscriptDrawer({
                 >
                     Transcript
                 </span>
-                {messages.length > 0 && (
-                    <span
-                        className="text-xs px-1.5 py-0.5 rounded-full tabular-nums"
-                        style={{
-                            backgroundColor: tokens.colors.surface,
-                            color: tokens.colors.textTertiary,
-                        }}
-                    >
-                        {messages.length}
-                    </span>
-                )}
             </button>
 
             {/* Collapsed transcript content */}
