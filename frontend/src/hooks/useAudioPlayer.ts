@@ -66,8 +66,6 @@ export const useAudioPlayer = () => {
     }, [playNext]);
 
     const playAudio = useCallback((audioBase64: string, mimeType: string = "audio/mpeg") => {
-        console.log("🔊 playAudio called with base64 length:", audioBase64.length, "mimeType:", mimeType);
-
         try {
             // Convert base64 to blob URL
             const byteCharacters = atob(audioBase64);
@@ -79,21 +77,14 @@ export const useAudioPlayer = () => {
             const blob = new Blob([byteArray], { type: mimeType });
             const audioUrl = URL.createObjectURL(blob);
 
-            console.log("🎵 Audio blob created, size:", blob.size, "bytes, URL:", audioUrl);
-
-            setState(prev => ({ ...prev, currentAudio: audioUrl }));
-
-            // If currently playing, queue it
-            if (state.isPlaying) {
-                console.log("⏸️ Currently playing, queueing audio");
-                audioQueueRef.current.push(audioUrl);
-            } else {
-                // Play immediately
-                console.log("▶️ Playing audio immediately");
-                if (audioRef.current) {
+            if (audioRef.current) {
+                // If currently playing, queue it
+                if (state.isPlaying) {
+                    audioQueueRef.current.push(audioUrl);
+                } else {
+                    // Play immediately
                     audioRef.current.src = audioUrl;
                     audioRef.current.play()
-                        .then(() => console.log("✅ Audio playback started"))
                         .catch(err => {
                             console.error("❌ Error playing audio:", err);
                         });

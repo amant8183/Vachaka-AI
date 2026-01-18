@@ -80,11 +80,6 @@ export const useVoiceActivityDetection = (
 
             setState(prev => ({ ...prev, volume: average }));
 
-            // Log volume every 2 seconds for debugging
-            if (Math.random() < 0.02) {
-                console.log(`🎤 VAD Volume: ${average.toFixed(1)} (threshold: ${fullConfig.threshold})`);
-            }
-
             const now = Date.now();
             const isSpeechDetected = average > fullConfig.threshold;
 
@@ -100,7 +95,6 @@ export const useVoiceActivityDetection = (
                         // Speech duration threshold met
                         isSpeakingRef.current = true;
                         setState(prev => ({ ...prev, isSpeaking: true }));
-                        console.log("🗣️ VAD: Speech started");
                         onSpeechStartRef.current?.();
                     }
                 }
@@ -116,7 +110,6 @@ export const useVoiceActivityDetection = (
                         // Silence duration threshold met
                         isSpeakingRef.current = false;
                         setState(prev => ({ ...prev, isSpeaking: false }));
-                        console.log("🔇 VAD: Speech ended");
                         onSpeechEndRef.current?.();
                     }
                 }
@@ -138,11 +131,9 @@ export const useVoiceActivityDetection = (
 
             // Use external stream if provided, otherwise create own
             if (externalStreamRef.current) {
-                console.log("✅ VAD: Using external shared stream");
                 stream = externalStreamRef.current;
                 streamRef.current = stream; // Store reference but don't own it
             } else {
-                console.log("🎤 VAD: Requesting own microphone access...");
                 stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 streamRef.current = stream;
             }
@@ -158,8 +149,6 @@ export const useVoiceActivityDetection = (
             microphoneRef.current.connect(analyserRef.current);
 
             setState(prev => ({ ...prev, isListening: true }));
-
-            console.log("✅ VAD: Microphone access granted, listening started");
 
             // Start monitoring audio levels
             monitorAudioLevel();
@@ -192,10 +181,7 @@ export const useVoiceActivityDetection = (
 
         // Only stop stream if we own it (not external)
         if (streamRef.current && !externalStreamRef.current) {
-            console.log("🛑 VAD: Stopping own microphone stream");
             streamRef.current.getTracks().forEach(track => track.stop());
-        } else if (externalStreamRef.current) {
-            console.log("📌 VAD: Disconnected from external stream (not stopping it)");
         }
 
         streamRef.current = null;

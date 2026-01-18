@@ -63,17 +63,14 @@ export const useConversation = (conversationId: string | null) => {
 
         // Listen for errors
         socket.on("error", (data: { message: string }) => {
-            console.error("Socket error:", data.message);
             alert(`Error: ${data.message}`);
         });
 
         // Listen for AI voice responses
         socket.on("ai_voice_response", (data: { audio: string; mimeType: string }) => {
-            console.log("🎙️ Received ai_voice_response event, audio length:", data.audio?.length, "mimeType:", data.mimeType);
             // Emit event that can be caught by audio player
             const event = new CustomEvent("ai_voice_response", { detail: data });
             window.dispatchEvent(event);
-            console.log("📢 Dispatched ai_voice_response custom event");
         });
 
         return () => {
@@ -97,10 +94,8 @@ export const useConversation = (conversationId: string | null) => {
     const sendVoiceInput = useCallback(
         (audioBuffer: ArrayBuffer) => {
             if (!socket || !conversationId) {
-                console.error("❌ sendVoiceInput aborted: Missing socket or conversationId", { socket: !!socket, conversationId });
                 return;
             }
-            console.log(`📤 useConversation sending voice input to ${conversationId}, buffer: ${audioBuffer.byteLength} bytes`);
             // Convert ArrayBuffer to Uint8Array for Socket.IO transmission
             const audioData = new Uint8Array(audioBuffer);
             socket.emit("voice_input", { conversationId, audioBuffer: audioData });

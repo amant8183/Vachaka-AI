@@ -52,21 +52,14 @@ export default function Dashboard() {
 
   // ==================== CALLBACKS (UNCHANGED) ====================
   const handleSpeechStart = useCallback(() => {
-    console.log("🎙️ Speech detected - starting recording");
     const callActive = isCallActiveRef.current;
-    console.log("🔍 Checking conditions - autoMode:", autoMode, "voiceState:", voiceState, "isSpeaking:", isSpeaking, "isCallActive:", callActive);
     if (autoMode && voiceState === "idle" && !isSpeaking && callActive) {
-      console.log("▶️ Starting recording (VAD continues monitoring)...");
       startRecording();
-    } else {
-      console.log("⚠️ Cannot start recording - conditions not met");
     }
   }, [autoMode, voiceState, isSpeaking, startRecording]);
 
   const handleSpeechEnd = useCallback(() => {
-    console.log("🔇 Silence detected - stopping recording");
     if (autoMode && voiceState === "recording") {
-      console.log("⏹️ Stopping recording due to silence");
       stopRecording();
     }
   }, [autoMode, voiceState, stopRecording]);
@@ -129,13 +122,10 @@ export default function Dashboard() {
 
   const handleVoiceSubmit = useCallback(async (blob: Blob) => {
     try {
-      console.log("🎤 handleVoiceSubmit called with blob:", blob.size, "bytes");
       setVoiceState("responding");
       const arrayBuffer = await blob.arrayBuffer();
-      console.log("📤 Sending voice input via WebSocket, size:", arrayBuffer.byteLength);
       sendVoiceInput(arrayBuffer);
       resetRecording();
-      console.log("✅ Voice input sent successfully");
     } catch (error) {
       console.error("❌ Error sending voice:", error);
       resetRecording();
@@ -143,7 +133,6 @@ export default function Dashboard() {
   }, [sendVoiceInput, resetRecording, setVoiceState]);
 
   useEffect(() => {
-    console.log("📦 Audio blob effect triggered - voiceState:", voiceState, "audioBlob:", audioBlob ? `${audioBlob.size} bytes` : "null");
     if (audioBlob && voiceState === "processing") {
       handleVoiceSubmit(audioBlob);
     }
@@ -152,12 +141,8 @@ export default function Dashboard() {
 
 
   const startCall = async () => {
-    console.log("📞 startCall() called - setting isCallActive to true");
-
     try {
-      console.log("🎤 Requesting microphone access...");
       await micStream.start();
-      console.log("✅ Shared mic stream started");
     } catch (error) {
       console.error("❌ Failed to start microphone:", error);
       alert("Failed to access microphone. Please check permissions.");
@@ -168,17 +153,12 @@ export default function Dashboard() {
     isCallActiveRef.current = true;
 
     if (autoMode) {
-      console.log("🎙️ Auto mode is ON, starting VAD listening...");
       await new Promise(resolve => setTimeout(resolve, 100));
-      console.log("🔍 About to start VAD, micStream.stream:", micStream.stream ? "exists" : "null");
       await vad.startListening();
     }
-
-    console.log("✅ Call started, isCallActive:", true);
   };
 
   const stopCall = () => {
-    console.log("⏸️ Stopping call...");
     vad.stopListening();
     if (voiceState === "recording") {
       stopRecording();
@@ -186,7 +166,6 @@ export default function Dashboard() {
     micStream.stop();
     setIsCallActive(false);
     isCallActiveRef.current = false;
-    console.log("✅ Call stopped");
   };
 
   const endConversation = () => {

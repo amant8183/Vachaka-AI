@@ -22,7 +22,6 @@ class SocketClient {
         });
 
         this.socket.on("connect", () => {
-            console.log("✅ Socket connected:", this.socket?.id);
             this.reconnectAttempts = 0;
         });
 
