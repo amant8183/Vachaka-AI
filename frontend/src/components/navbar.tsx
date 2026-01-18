@@ -7,7 +7,6 @@ import { tokens } from "@/lib/design-tokens";
 
 const Navbar = () => {
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   // Track scroll position for navbar background

@@ -15,9 +15,31 @@ export const useAudioPlayer = () => {
 
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const audioQueueRef = useRef<string[]>([]);
+    const playNextRef = useRef<(() => void) | null>(null);
+
+    const playNext = useCallback(() => {
+        playNextRef.current?.();
+    }, []);
 
     // Initialize audio element
     useEffect(() => {
+        // Define playNext implementation in effect to avoid ref mutation during render
+        playNextRef.current = () => {
+            if (audioQueueRef.current.length > 0) {
+                const nextAudio = audioQueueRef.current.shift();
+                if (nextAudio && audioRef.current) {
+                    audioRef.current.src = nextAudio;
+                    audioRef.current.play().catch(err => {
+                        console.error("Error playing audio:", err);
+                        // Recursive call through ref
+                        if (audioQueueRef.current.length > 0 && playNextRef.current) {
+                            playNextRef.current();
+                        }
+                    });
+                }
+            }
+        };
+
         audioRef.current = new Audio();
 
         audioRef.current.addEventListener("play", () => {
@@ -41,20 +63,7 @@ export const useAudioPlayer = () => {
                 audioRef.current = null;
             }
         };
-    }, []);
-
-    const playNext = useCallback(() => {
-        if (audioQueueRef.current.length > 0) {
-            const nextAudio = audioQueueRef.current.shift();
-            if (nextAudio && audioRef.current) {
-                audioRef.current.src = nextAudio;
-                audioRef.current.play().catch(err => {
-                    console.error("Error playing audio:", err);
-                    playNext();
-                });
-            }
-        }
-    }, []);
+    }, [playNext]);
 
     const playAudio = useCallback((audioBase64: string, mimeType: string = "audio/mpeg") => {
         console.log("🔊 playAudio called with base64 length:", audioBase64.length, "mimeType:", mimeType);

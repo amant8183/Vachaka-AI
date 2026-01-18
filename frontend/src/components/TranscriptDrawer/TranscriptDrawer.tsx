@@ -30,7 +30,7 @@ export function TranscriptDrawer({
             {/* Minimal toggle handle */}
             <button
                 onClick={onToggle}
-                className="w-full py-2.5 flex items-center justify-center gap-2 hover:bg-white/[0.02] transition-colors"
+                className="w-full py-2.5 flex items-center justify-center gap-2 hover:bg-white/2 transition-colors"
                 style={{
                     color: tokens.colors.textTertiary,
                 }}

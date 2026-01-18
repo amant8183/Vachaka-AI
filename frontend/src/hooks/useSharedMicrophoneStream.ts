@@ -12,6 +12,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 export const useSharedMicrophoneStream = () => {
     const [isActive, setIsActive] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [stream, setStream] = useState<MediaStream | null>(null);
     const streamRef = useRef<MediaStream | null>(null);
 
     const start = useCallback(async () => {
@@ -22,7 +23,7 @@ export const useSharedMicrophoneStream = () => {
 
         try {
             console.log("🎤 Requesting microphone access...");
-            const stream = await navigator.mediaDevices.getUserMedia({
+            const newStream = await navigator.mediaDevices.getUserMedia({
                 audio: {
                     echoCancellation: true,
                     noiseSuppression: true,
@@ -30,12 +31,13 @@ export const useSharedMicrophoneStream = () => {
                 }
             });
 
-            streamRef.current = stream;
+            streamRef.current = newStream;
+            setStream(newStream);
             setIsActive(true);
             setError(null);
             console.log("✅ Shared microphone stream started");
 
-            return stream;
+            return newStream;
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : "Failed to access microphone";
             console.error("❌ Microphone access error:", errorMessage);
@@ -53,6 +55,7 @@ export const useSharedMicrophoneStream = () => {
                 console.log("  ⏹️ Stopped track:", track.label);
             });
             streamRef.current = null;
+            setStream(null);
             setIsActive(false);
             console.log("✅ Shared microphone stream stopped");
         }
@@ -66,7 +69,7 @@ export const useSharedMicrophoneStream = () => {
     }, [stop]);
 
     return {
-        stream: streamRef.current,
+        stream,
         isActive,
         error,
         start,

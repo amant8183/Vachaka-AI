@@ -21,7 +21,7 @@ export default function Dashboard() {
   const [autoMode] = useState(true); // Always auto mode
   const [isCallActive, setIsCallActive] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [isProcessingAudio, setIsProcessingAudio] = useState(false); // Manual processing state
+  const [isProcessingAudio, setIsProcessingAudio] = useState(false);
   const isCallActiveRef = useRef(false);
   const prevSpeakingRef = useRef(false);
 
@@ -31,7 +31,6 @@ export default function Dashboard() {
     streamingMessage,
     isStreaming,
     mode,
-    sendMessage,
     sendVoiceInput,
     setMessages,
   } = useConversation(conversationId);
@@ -47,7 +46,7 @@ export default function Dashboard() {
     resetRecording,
   } = useVoiceRecorder(micStream.stream);
 
-  const { isPlaying, isSpeaking, playAudio, stop: stopAudio } = useAudioPlayer();
+  const { isSpeaking, playAudio } = useAudioPlayer();
 
   const vadRef = useRef<ReturnType<typeof useVoiceActivityDetection> | null>(null);
 
@@ -86,9 +85,11 @@ export default function Dashboard() {
     micStream.stream
   );
 
-  vadRef.current = vad;
+  // Update ref in useEffect to avoid updating during render
+  useEffect(() => {
+    vadRef.current = vad;
+  }, [vad]);
 
-  const [newMessage, setNewMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   // ==================== EFFECTS (UNCHANGED) ====================
@@ -105,6 +106,7 @@ export default function Dashboard() {
   // Set processing state when voice recording ends
   useEffect(() => {
     if (voiceState === "processing" || voiceState === "responding") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsProcessingAudio(true);
     }
   }, [voiceState]);
@@ -112,6 +114,7 @@ export default function Dashboard() {
   // Clear processing state when AI starts speaking
   useEffect(() => {
     if (isSpeaking && !prevSpeakingRef.current) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsProcessingAudio(false);
     }
 
@@ -146,19 +149,7 @@ export default function Dashboard() {
     }
   }, [audioBlob, voiceState, handleVoiceSubmit]);
 
-  const handleSend = () => {
-    if (!newMessage.trim() || !conversationId) return;
-    sendMessage(newMessage);
-    setNewMessage("");
-  };
 
-  const handleMicClick = () => {
-    if (voiceState === "recording") {
-      stopRecording();
-    } else if (voiceState === "idle") {
-      startRecording();
-    }
-  };
 
   const startCall = async () => {
     console.log("📞 startCall() called - setting isCallActive to true");
@@ -206,16 +197,14 @@ export default function Dashboard() {
     }
   };
 
-  const handleDisconnect = useCallback(() => {
-    setConversationId(null);
-    setMessages([]);
-  }, [setMessages]);
-
+  // Handle disconnection - intentional cleanup when connection is lost
   useEffect(() => {
     if (!isConnected) {
-      handleDisconnect();
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setConversationId(null);
+      setMessages([]);
     }
-  }, [isConnected, handleDisconnect]);
+  }, [isConnected, setMessages]);
 
   // ==================== CONVERSATION CREATION (UNCHANGED) ====================
   const createNewConversation = async (ttsProvider: "groq" | "deepgram") => {

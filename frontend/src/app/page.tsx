@@ -1,18 +1,17 @@
 'use client';
 
 import Link from 'next/link';
-import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
+import { motion, useMotionValue, animate } from 'framer-motion';
 import { tokens } from '@/lib/design-tokens';
 import { useEffect } from 'react';
 
 export default function Home() {
   const count = useMotionValue(0);
-  const rounded = useTransform(count, Math.round);
 
   useEffect(() => {
     const animation = animate(count, 100, { duration: 2, delay: 0.5 });
     return animation.stop;
-  }, []);
+  }, [count]);
 
   return (
     <main
@@ -101,7 +100,7 @@ export default function Home() {
             transition={{ duration: 0.7, delay: 0.3 }}
           >
             {[
-              { value: '<1s', label: 'Response time' },
+              { value: '<2s', label: 'Response time' },
               { value: '99.9%', label: 'Uptime' },
               { value: '24/7', label: 'Available' },
             ].map((stat, i) => (

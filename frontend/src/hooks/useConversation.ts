@@ -1,19 +1,19 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Socket } from "socket.io-client";
 import { Message, ConversationMode } from "@/types";
 import { socketClient } from "@/lib/socket";
 
 export const useConversation = (conversationId: string | null) => {
-    const [socket, setSocket] = useState<Socket | null>(null);
+    // Declare states first before using them in socket initialization
     const [messages, setMessages] = useState<Message[]>([]);
     const [isConnected, setIsConnected] = useState(false);
     const [streamingMessage, setStreamingMessage] = useState("");
     const [isStreaming, setIsStreaming] = useState(false);
     const [mode, setMode] = useState<ConversationMode>("casual");
 
-    useEffect(() => {
+    // Initialize socket with lazy initialization to avoid setState in effect
+    const [socket] = useState<Socket>(() => {
         const socketInstance = socketClient.connect();
-        setSocket(socketInstance);
 
         socketInstance.on("connect", () => {
             setIsConnected(true);
@@ -23,6 +23,10 @@ export const useConversation = (conversationId: string | null) => {
             setIsConnected(false);
         });
 
+        return socketInstance;
+    });
+
+    useEffect(() => {
         return () => {
             socketClient.disconnect();
         };

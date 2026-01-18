@@ -1,24 +1,7 @@
 import { io, Socket } from "socket.io-client";
-import { Message } from "@/types";
 import { API_CONFIG } from "./config";
 
 const SOCKET_URL = API_CONFIG.BACKEND_URL;
-
-interface SocketEvents {
-    // Client -> Server
-    join_conversation: (data: { conversationId: string }) => void;
-    send_message: (data: { conversationId: string; message: string }) => void;
-    voice_input: (data: { conversationId: string; audioBuffer: ArrayBuffer }) => void;
-
-    // Server -> Client
-    joined_conversation: (data: { conversationId: string; mode: string }) => void;
-    message_received: (data: Message) => void;
-    message_chunk: (data: { chunk: string }) => void;
-    message_complete: (data: Message) => void;
-    voice_transcribed: (data: { transcript: string }) => void;
-    voice_processing: (data: { status: string }) => void;
-    error: (data: { message: string }) => void;
-}
 
 class SocketClient {
     private socket: Socket | null = null;

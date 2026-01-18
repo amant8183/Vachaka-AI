@@ -59,6 +59,76 @@ export const useVoiceActivityDetection = (
         externalStreamRef.current = externalStream || null;
     }, [externalStream]);
 
+    // Monitor audio level ref for recursive calls
+    const monitorAudioLevelRef = useRef<(() => void) | null>(null);
+
+    const monitorAudioLevel = useCallback(() => {
+        monitorAudioLevelRef.current?.();
+    }, []);
+
+    // Setup monitor audio level implementation in effect
+    useEffect(() => {
+        // Monitor audio level and detect speech - using ref pattern for recursion
+        monitorAudioLevelRef.current = () => {
+            if (!analyserRef.current) return;
+
+            const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
+            analyserRef.current.getByteFrequencyData(dataArray);
+
+            // Calculate average volume
+            const average = dataArray.reduce((sum, value) => sum + value, 0) / dataArray.length;
+
+            setState(prev => ({ ...prev, volume: average }));
+
+            // Log volume every 2 seconds for debugging
+            if (Math.random() < 0.02) {
+                console.log(`🎤 VAD Volume: ${average.toFixed(1)} (threshold: ${fullConfig.threshold})`);
+            }
+
+            const now = Date.now();
+            const isSpeechDetected = average > fullConfig.threshold;
+
+            if (isSpeechDetected) {
+                // Speech detected
+                silenceStartTimeRef.current = null;
+
+                if (!isSpeakingRef.current) {
+                    // Not currently speaking, check if we should start
+                    if (speechStartTimeRef.current === null) {
+                        speechStartTimeRef.current = now;
+                    } else if (now - speechStartTimeRef.current >= fullConfig.minSpeechDuration) {
+                        // Speech duration threshold met
+                        isSpeakingRef.current = true;
+                        setState(prev => ({ ...prev, isSpeaking: true }));
+                        console.log("🗣️ VAD: Speech started");
+                        onSpeechStartRef.current?.();
+                    }
+                }
+            } else {
+                // Silence detected
+                speechStartTimeRef.current = null;
+
+                if (isSpeakingRef.current) {
+                    // Currently speaking, check if we should stop
+                    if (silenceStartTimeRef.current === null) {
+                        silenceStartTimeRef.current = now;
+                    } else if (now - silenceStartTimeRef.current >= fullConfig.silenceDuration) {
+                        // Silence duration threshold met
+                        isSpeakingRef.current = false;
+                        setState(prev => ({ ...prev, isSpeaking: false }));
+                        console.log("🔇 VAD: Speech ended");
+                        onSpeechEndRef.current?.();
+                    }
+                }
+            }
+
+            // Continue monitoring - recursive call through ref
+            if (monitorAudioLevelRef.current) {
+                animationFrameRef.current = requestAnimationFrame(monitorAudioLevelRef.current);
+            }
+        };
+    }, [fullConfig.threshold, fullConfig.minSpeechDuration, fullConfig.silenceDuration]);
+
     // Start listening to microphone
     const startListening = useCallback(async () => {
         if (!fullConfig.enabled) return;
@@ -98,7 +168,7 @@ export const useVoiceActivityDetection = (
             alert("Failed to access microphone. Please grant microphone permissions and try again.");
             setState(prev => ({ ...prev, isListening: false }));
         }
-    }, [fullConfig.enabled]);
+    }, [fullConfig.enabled, monitorAudioLevel]);
 
     // Stop listening
     const stopListening = useCallback(() => {
@@ -140,64 +210,6 @@ export const useVoiceActivityDetection = (
             volume: 0,
         });
     }, []);
-
-    // Monitor audio level and detect speech
-    const monitorAudioLevel = useCallback(() => {
-        if (!analyserRef.current) return;
-
-        const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
-        analyserRef.current.getByteFrequencyData(dataArray);
-
-        // Calculate average volume
-        const average = dataArray.reduce((sum, value) => sum + value, 0) / dataArray.length;
-
-        setState(prev => ({ ...prev, volume: average }));
-
-        // Log volume every 2 seconds for debugging
-        if (Math.random() < 0.02) {
-            console.log(`🎤 VAD Volume: ${average.toFixed(1)} (threshold: ${fullConfig.threshold})`);
-        }
-
-        const now = Date.now();
-        const isSpeechDetected = average > fullConfig.threshold;
-
-        if (isSpeechDetected) {
-            // Speech detected
-            silenceStartTimeRef.current = null;
-
-            if (!isSpeakingRef.current) {
-                // Not currently speaking, check if we should start
-                if (speechStartTimeRef.current === null) {
-                    speechStartTimeRef.current = now;
-                } else if (now - speechStartTimeRef.current >= fullConfig.minSpeechDuration) {
-                    // Speech duration threshold met
-                    isSpeakingRef.current = true;
-                    setState(prev => ({ ...prev, isSpeaking: true }));
-                    console.log("🗣️ VAD: Speech started");
-                    onSpeechStartRef.current?.();
-                }
-            }
-        } else {
-            // Silence detected
-            speechStartTimeRef.current = null;
-
-            if (isSpeakingRef.current) {
-                // Currently speaking, check if we should stop
-                if (silenceStartTimeRef.current === null) {
-                    silenceStartTimeRef.current = now;
-                } else if (now - silenceStartTimeRef.current >= fullConfig.silenceDuration) {
-                    // Silence duration threshold met
-                    isSpeakingRef.current = false;
-                    setState(prev => ({ ...prev, isSpeaking: false }));
-                    console.log("🔇 VAD: Speech ended");
-                    onSpeechEndRef.current?.();
-                }
-            }
-        }
-
-        // Continue monitoring
-        animationFrameRef.current = requestAnimationFrame(monitorAudioLevel);
-    }, [fullConfig.threshold, fullConfig.minSpeechDuration, fullConfig.silenceDuration]);
 
     // Cleanup on unmount
     useEffect(() => {
