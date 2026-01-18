@@ -302,7 +302,7 @@ export function VoiceOrb({ state, volume = 0, onClick }: VoiceOrbProps) {
                 }}
             >
                 <span
-                    className="text-sm font-medium tracking-wide"
+                    className="text-sm font-medium tracking-wide "
                     style={{
                         color: tokens.colors.textSecondary,
                         fontWeight: tokens.typography.fontWeight.medium,

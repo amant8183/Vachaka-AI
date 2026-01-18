@@ -113,13 +113,13 @@ const Navbar = () => {
           <span className="hidden sm:inline">Vachaka AI</span>
         </Link>
 
-        {/* Desktop Menu */}
-        <div className="hidden md:flex gap-8 items-center">
+        {/* Navigation Links - visible on all screen sizes */}
+        <div className="flex gap-4 sm:gap-6 md:gap-8 items-center">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="text-sm font-medium transition-all duration-300 relative group/link"
+              className="text-xs sm:text-sm font-medium transition-all duration-300 relative group/link"
               style={{
                 color:
                   pathname === link.href
@@ -145,112 +145,8 @@ const Navbar = () => {
             </Link>
           ))}
 
-          {/* About Link */}
-          <Link
-            href="/about"
-            className="text-sm font-medium transition-all duration-300 relative group/about"
-            style={{
-              color:
-                pathname === '/about'
-                  ? tokens.colors.textPrimary
-                  : tokens.colors.textSecondary,
-            }}
-          >
-            About
-            {/* Active underline */}
-            {pathname === '/about' && (
-              <span
-                className="absolute -bottom-1 left-0 right-0 h-0.5 rounded-full"
-                style={{ backgroundColor: tokens.colors.userPrimary }}
-              />
-            )}
-            {/* Hover underline for inactive state */}
-            {pathname !== '/about' && (
-              <span
-                className="absolute -bottom-1 left-0 right-0 h-0.5 rounded-full scale-x-0 group-hover/about:scale-x-100 transition-transform duration-300 origin-left"
-                style={{ backgroundColor: tokens.colors.userPrimary }}
-              />
-            )}
-          </Link>
         </div>
-
-        {/* Mobile Menu Toggle */}
-        <button
-          className="md:hidden p-2 rounded-lg transition-colors"
-          style={{
-            color: tokens.colors.textPrimary,
-            backgroundColor: isOpen ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
-          }}
-          onClick={() => setIsOpen(!isOpen)}
-          aria-label="Toggle menu"
-        >
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            {isOpen ? (
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            ) : (
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            )}
-          </svg>
-        </button>
       </div>
-
-      {/* Mobile Dropdown */}
-      {isOpen && (
-        <div
-          className="md:hidden flex flex-col items-center py-4 space-y-3 border-t"
-          style={{
-            backgroundColor: 'rgba(10, 10, 10, 0.95)',
-            backdropFilter: 'blur(12px)',
-            borderColor: tokens.colors.border,
-          }}
-        >
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              onClick={() => setIsOpen(false)}
-              className="py-2 px-6 font-medium transition-colors w-full text-center"
-              style={{
-                color:
-                  pathname === link.href
-                    ? tokens.colors.textPrimary
-                    : tokens.colors.textSecondary,
-                backgroundColor: pathname === link.href ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
-                borderRadius: '8px',
-              }}
-            >
-              {link.name}
-            </Link>
-          ))}
-          <Link href="/about" className="w-full px-6">
-            <button
-              className="w-full py-2 px-4 rounded-lg text-sm font-medium"
-              style={{
-                backgroundColor: tokens.colors.userPrimary,
-                color: '#ffffff',
-              }}
-              onClick={() => setIsOpen(false)}
-            >
-              About
-            </button>
-          </Link>
-        </div>
-      )}
     </nav>
   );
 };

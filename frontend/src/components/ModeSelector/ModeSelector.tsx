@@ -37,7 +37,7 @@ export function ModeSelector({ onSelectMode }: ModeSelectorProps) {
 
     return (
         <div
-            className="min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8 relative"
+            className="min-h-screen flex items-center justify-center pt-15 sm:pt-20 md:pt-10 pb-4 sm:pb-6 md:pb-8 px-6 sm:px-16 md:px-8 relative"
             style={{ backgroundColor: tokens.colors.background }}
         >
             {/* Diagonal grid overlay */}

@@ -324,32 +324,40 @@ export default function Dashboard() {
             <div className="pt-2 sm:pt-4">
               <button
                 onClick={startCall}
-                className="group relative px-12 py-4 sm:px-14 sm:py-5 rounded-xl text-lg sm:text-xl font-semibold transition-all duration-300 hover:scale-105 overflow-hidden"
+                className="group relative px-10 py-3.5 sm:px-12 sm:py-4 rounded-xl text-base sm:text-lg font-medium transition-all duration-300 hover:scale-[1.02] overflow-hidden"
                 style={{
-                  backgroundColor: '#dc2626',
-                  color: '#ffffff',
-                  boxShadow: '0 20px 60px -15px rgba(220, 38, 38, 0.6)',
+                  border: '1.5px solid rgba(220, 38, 38, 0.5)',
+                  color: '#e5e5e5',
+                  boxShadow: '0 8px 32px -8px rgba(220, 38, 38, 0.4)',
                 }}
               >
-                {/* Hover gradient */}
+                {/* Hover gradient overlay */}
                 <div
                   className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                   style={{
-                    background: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',
+                    background: 'linear-gradient(135deg, rgba(220, 38, 38, 0.3) 0%, rgba(185, 28, 28, 0.3) 100%)',
                   }}
                 />
-                <span className="relative z-10 flex items-center gap-3">
-                  Start Call
+                {/* Shine effect on hover */}
+                <div
+                  className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-500 group-hover:animate-[shimmer_1s_ease-in-out]"
+                  style={{
+                    background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent)',
+                    transform: 'translateX(-100%)',
+                  }}
+                />
+                <span className="relative z-10 flex items-center justify-center gap-2.5">
+                  Start
                   <svg
-                    className="w-5 h-5 sm:w-6 sm:h-6 group-hover:translate-x-1 transition-transform duration-200"
+                    className="w-5 h-5 sm:w-5 sm:h-5 group-hover:translate-x-0.5 transition-transform duration-200"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
+                    strokeWidth={2.5}
                   >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      strokeWidth={2}
                       d="M9 5l7 7-7 7"
                     />
                   </svg>
@@ -366,34 +374,43 @@ export default function Dashboard() {
             />
 
             {/* Control buttons below orb */}
-            <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 w-full sm:w-auto">
+            <div className="pt-10 flex flex-col sm:flex-row items-center gap-4 sm:gap-5 w-full sm:w-auto max-w-md sm:max-w-none">
               {/* Pause call button */}
               <button
                 onClick={stopCall}
-                className="group relative px-6 py-3 sm:px-7 sm:py-3.5 rounded-lg text-sm sm:text-base font-medium transition-all duration-300 hover:scale-105 overflow-hidden w-full sm:w-auto"
+                className="group relative px-8 py-4 sm:px-9 sm:py-4 rounded-xl text-sm sm:text-base font-medium transition-all duration-300 hover:scale-[1.02] overflow-hidden w-full sm:w-auto backdrop-blur-sm"
                 style={{
-                  backgroundColor: 'rgba(64, 64, 64, 0.5)',
-                  border: '1px solid rgba(229, 229, 229, 0.1)',
+                  backgroundColor: 'rgba(17, 17, 17, 0.6)',
+                  border: '1.5px solid rgba(229, 229, 229, 0.15)',
                   color: '#e5e5e5',
+                  boxShadow: '0 8px 32px -8px rgba(0, 0, 0, 0.4)',
                 }}
               >
+                {/* Subtle background glow */}
                 <div
                   className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                   style={{
-                    backgroundColor: 'rgba(64, 64, 64, 0.8)',
+                    background: 'radial-gradient(circle at 50% 0%, rgba(229, 229, 229, 0.08), transparent 70%)',
                   }}
                 />
-                <span className="relative z-10 flex items-center justify-center gap-2">
+                {/* Hover border enhancement */}
+                <div
+                  className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+                  style={{
+                    border: '1.5px solid rgba(229, 229, 229, 0.25)',
+                  }}
+                />
+                <span className="relative z-10 flex items-center justify-center gap-2.5">
                   <svg
-                    className="w-4 h-4 sm:w-5 sm:h-5"
+                    className="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform duration-200"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
+                    strokeWidth={2.5}
                   >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      strokeWidth={2}
                       d="M10 9v6m4-6v6"
                     />
                   </svg>
@@ -404,30 +421,38 @@ export default function Dashboard() {
               {/* End call button */}
               <button
                 onClick={endConversation}
-                className="group relative px-6 py-3 sm:px-7 sm:py-3.5 rounded-lg text-sm sm:text-base font-medium transition-all duration-300 hover:scale-105 overflow-hidden w-full sm:w-auto"
+                className="group relative px-8 py-4 sm:px-9 sm:py-4 rounded-xl text-sm sm:text-base font-medium transition-all duration-300 hover:scale-[1.02] overflow-hidden w-full sm:w-auto"
                 style={{
-                  backgroundColor: '#991b1b',
-                  border: '1px solid rgba(153, 27, 27, 0.5)',
-                  color: '#ffffff',
+                  border: '1.5px solid rgba(220, 38, 38, 0.5)',
+                  color: '#e5e5e5',
+                  boxShadow: '0 8px 32px -8px rgba(220, 38, 38, 0.4)',
                 }}
               >
+                {/* Premium hover gradient */}
                 <div
                   className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                   style={{
-                    background: 'linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%)',
+                    background: 'rgba(153, 27, 27, 0.3)',
                   }}
                 />
-                <span className="relative z-10 flex items-center justify-center gap-2">
+                {/* Subtle glow effect */}
+                <div
+                  className="absolute inset-0 opacity-0 group-hover:opacity-50 transition-opacity duration-300"
+                  style={{
+                    background: 'radial-gradient(circle at 50% 0%, rgba(220, 38, 38, 0.2), transparent 70%)',
+                  }}
+                />
+                <span className="relative z-10 flex items-center justify-center gap-2.5">
                   <svg
-                    className="w-4 h-4 sm:w-5 sm:h-5"
+                    className="w-4 h-4 sm:w-5 sm:h-5 group-hover:rotate-90 transition-transform duration-300"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
+                    strokeWidth={2.5}
                   >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      strokeWidth={2}
                       d="M6 18L18 6M6 6l12 12"
                     />
                   </svg>

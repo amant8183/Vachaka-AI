@@ -16,7 +16,7 @@ export default function Home() {
 
   return (
     <main
-      className="min-h-screen relative flex flex-col items-center justify-center px-4 sm:px-6 py-12 sm:py-0"
+      className="min-h-screen relative flex flex-col items-center justify-center px-4 sm:px-6 py-20 md:py-0"
       style={{ backgroundColor: tokens.colors.background }}
     >
       {/* Subtle diagonal grid overlay */}
