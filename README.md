@@ -1,7 +1,7 @@
 
 <div align="center" style="margin-bottom: 20px;">
   <img src="frontend/public/favicon.ico" alt="Vachaka AI Logo" width="70" style="vertical-align: bottom; margin-right: 10px;" />
-  <span style="font-size: 40px; font-weight: bold;">Vachaka AI</span>
+  <h1>Vachaka AI</h1>
 </div>
 
 
