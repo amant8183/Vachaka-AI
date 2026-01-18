@@ -1,377 +1,179 @@
-# Voice AI Dashboard
 
-A production-grade **real-time Voice AI Agent** built with **Next.js**, **Express**, **WebSockets**, and **AI integration**. Supports both casual conversations and professional interview modes with voice and text input.
+# 🎙️ Vachaka AI
 
-## 🎯 Features
+![Vachaka AI Banner](https://placehold.co/1200x400/10b981/ffffff?text=Vachaka+AI)
 
-### Core Capabilities
-- ✅ **Real-time AI Conversations** - Streaming responses via WebSocket
-- ✅ **Voice Input** - Record and transcribe voice messages
-- ✅ **Dual Conversation Modes**
-  - 💬 **Casual Mode**: Friendly, conversational AI
-  - 💼 **Interview Mode**: Professional, structured interviewer
-- ✅ **Persistent History** - All conversations saved to MongoDB
-- ✅ **Modern UI** - Clean, responsive dashboard with real-time updates
+<div align="center">
 
-### Technical Features
-- WebSocket-based real-time communication
-- Streaming AI responses (token-by-token)
-- Speech-to-Text integration (Whisper/Deepgram)
-- Production-grade architecture with clean separation of concerns
-- TypeScript throughout (frontend & backend)
-- Error handling and reconnection logic
+**Production-grade Real-time Voice AI Agent**  
+*Built for latency-critical applications with streaming text & audio.*
+
+[![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![Express](https://img.shields.io/badge/Express-5-green?style=for-the-badge&logo=nodedotjs)](https://expressjs.com/)
+[![Socket.IO](https://img.shields.io/badge/Socket.IO-Realtime-blue?style=for-the-badge&logo=socket.io)](https://socket.io/)
+[![Groq](https://img.shields.io/badge/Groq-LPU-orange?style=for-the-badge)](https://groq.com/)
+[![License](https://img.shields.io/badge/License-MIT-gray?style=for-the-badge)](LICENSE)
+
+[Live Demo](https://vachaka-ai.vercel.app/) • [Report Bug](https://github.com/amant8183/Vachaka-AI/issues) • [Request Feature](https://github.com/amant8183/Vachaka-AI/issues)
+
+</div>
+
+---
+
+## 🚀 Overview
+
+**Vachaka AI** is a state-of-the-art conversational agent designed to bridge the gap between human speech and AI intelligence. Unlike traditional chatbots, Vachaka processes audio streams in real-time, delivering sub-second latency responses.
+
+It features **dual-mode intelligence**:
+*   **Casual Mode 💬**: Perfect for open-ended brainstorming and friendly chat.
+*   **Interview Mode 💼**: A structured, professional persona for mock interviews and assessments.
+
+## ✨ Key Features
+
+### 🧠 Advanced AI Core
+*   **Real-time Streaming**: Token-by-token responses via WebSockets for instant feedback.
+*   **Multi-LLM Support**: Powered by **Groq** (LLaMA 3) for speed, with **OpenAI** fallback.
+*   **Context Awareness**: Maintains conversation history for coherent long-form interactions.
+
+### 🗣️ Voice Capabilities
+*   **Instant Transcription**: High-fidelity STT using **Deepgram Nova-2** or **OpenAI Whisper**.
+*   **Voice Activity Detection**: Smart silence detection to manage turn-taking naturally.
+
+### 🏗️ Production Architecture
+*   **Hybrid Deployment**:
+    *   **Frontend**: Next.js App Router deployed on **Vercel** (Global Edge Network).
+    *   **Backend**: Express/Socket.io server on **AWS EC2**.
+    *   **Networking**: Secure **Cloudflare Tunnel** for encrypted low-latency ingress.
+*   **Scalable**: Modular service architecture separating AI, STT, and WebSocket layers.
+
+---
 
 ## 📦 Tech Stack
 
-### Frontend
-- **Next.js 16** (App Router)
-- **React 19**
-- **TypeScript**
-- **Tailwind CSS v4**
-- **Socket.IO Client**
-- **MediaRecorder API** for voice recording
+### Frontend (Client)
+*   **Framework**: Next.js 16 (App Router)
+*   **Language**: TypeScript
+*   **Styling**: Tailwind CSS v4 + Framer Motion
+*   **Real-time**: Socket.IO Client
+*   **Audio**: Web Audio API + MediaRecorder
 
-### Backend
-- **Express 5**
-- **TypeScript**
-- **MongoDB + Mongoose**
-- **Socket.IO** for WebSockets
-- **Groq SDK** (LLaMA 3) or **OpenAI** for AI
-- **Whisper/Deepgram** for Speech-to-Text
+### Backend (Server)
+*   **Runtime**: Node.js / Express 5
+*   **Database**: MongoDB (Atlas)
+*   **Transport**: Socket.IO (WebSockets)
+*   **AI Engine**: Groq SDK / OpenAI SDK
+*   **Compute**: AWS EC2 (Amazon Linux 2023)
 
-## 🚀 Getting Started
+---
+
+## 🛠️ Installation & Setup
 
 ### Prerequisites
-- Node.js 18+ and npm
-- MongoDB (local or Atlas)
-- API Keys:
-  - Groq API key OR OpenAI API key
-  - OpenAI API key (for Whisper) OR Deepgram API key
+*   Node.js 18+
+*   MongoDB Instance
+*   API Keys (Groq, OpenAI, or Deepgram)
 
-### Installation
-
-#### 1. Clone and Install Dependencies
-
+### 1. Clone Repository
 ```bash
-# Install backend dependencies
+git clone https://github.com/amant8183/Vachaka-AI.git
+cd Vachaka-AI
+```
+
+### 2. Configure Backend
+```bash
 cd backend
 npm install
+```
 
-# Install frontend dependencies
-cd ../frontend
+Create `.env`:
+```env
+PORT=5000
+MONGO_URI=mongodb+srv://...
+FRONTEND_URL=http://localhost:3000
+AI_PROVIDER=groq
+GROQ_API_KEY=gsk_...
+DEEPGRAM_API_KEY=...
+```
+
+### 3. Configure Frontend
+```bash
+cd frontend
 npm install
 ```
 
-#### 2. Configure Backend Environment
-
-Create `backend/.env`:
-
-```env
-# Server
-PORT=5000
-NODE_ENV=development
-
-# Database
-MONGO_URI=mongodb://localhost:27017/voice-ai-dashboard
-
-# Frontend
-FRONTEND_URL=http://localhost:3000
-
-# AI Provider (choose one: groq or openai)
-AI_PROVIDER=groq
-GROQ_API_KEY=your_groq_api_key_here
-# OR
-# AI_PROVIDER=openai
-# OPENAI_API_KEY=your_openai_api_key_here
-
-# STT Provider (choose one: whisper, deepgram, or assemblyai)
-STT_PROVIDER=whisper
-# If using Whisper, you need OpenAI API key
-OPENAI_API_KEY=your_openai_api_key_here
-# OR
-# STT_PROVIDER=deepgram
-# DEEPGRAM_API_KEY=your_deepgram_api_key_here
-```
-
-#### 3. Configure Frontend Environment
-
-Create `frontend/.env.local`:
-
+Create `.env.local`:
 ```env
 NEXT_PUBLIC_BACKEND_URL=http://localhost:5000
 ```
 
-#### 4. Start MongoDB
-
+### 4. Run Locally
+**Terminal 1 (Backend):**
 ```bash
-# If using local MongoDB
-mongod
-
-# Or use MongoDB Atlas cloud database
+cd backend && npm run dev
 ```
 
-#### 5. Run the Application
-
-**Terminal 1 - Backend:**
+**Terminal 2 (Frontend):**
 ```bash
-cd backend
-npm run dev
+cd frontend && npm run dev
 ```
 
-**Terminal 2 - Frontend:**
-```bash
-cd frontend
-npm run dev
+Visit `http://localhost:3000` to start chatting.
+
+---
+
+## 🌍 Deployment Guide
+
+### Architecture Diagram
+```plaintext
+[User Browser] <--> [Vercel (Frontend)]
+       ^
+       | (WSS / HTTPS)
+       v
+[Cloudflare Tunnel] <--> [AWS EC2 (Backend)] <--> [MongoDB Atlas]
+                                 ^
+                                 |
+                        [Groq/Deepgram API]
 ```
 
-#### 6. Open the App
+### Backend (AWS EC2)
+1.  **Provision**: Launch Amazon Linux 2023 instance.
+2.  **Environment**: Install Node.js, PM2, and Git.
+3.  **Tunnel**: Install `cloudflared` for secure HTTPS ingress.
+    ```bash
+    cloudflared tunnel --url http://localhost:5000
+    ```
+4.  **Process Management**: Use PM2 to keep services alive.
+    ```bash
+    pm2 start dist/server.js --name "vachaka-backend"
+    pm2 start cloudflared --name "tunnel"
+    ```
 
-Navigate to [http://localhost:3000](http://localhost:3000)
+### Frontend (Vercel)
+1.  Import project to Vercel.
+2.  Set Environment Variable:
+    *   `NEXT_PUBLIC_BACKEND_URL`: Your Cloudflare Tunnel URL (e.g., `https://xyz.trycloudflare.com`).
+3.  Deploy.
 
-## 📖 Usage Guide
+---
 
-### Starting a Conversation
+## 🤝 Contributing
 
-1. **Select Mode**: Choose between Casual or Interview mode
-2. **Start Conversation**: Click "Start Conversation" button
-3. **Interact**:
-   - **Text**: Type your message and press Enter or click Send
-   - **Voice**: Click the microphone icon, speak, then click again to stop
+Contributions are welcome! Please check out the [issues](https://github.com/amant8183/Vachaka-AI/issues) or submit a Pull Request.
 
-### Conversation Modes
+1.  Fork the Project
+2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4.  Push to the Branch (`git push origin feature/AmazingFeature`)
+5.  Open a Pull Request
 
-#### Casual Mode 💬
-- Friendly, conversational tone
-- Natural language responses
-- Follow-up questions
-- Great for brainstorming and creative discussions
-
-#### Interview Mode 💼
-- Professional, structured questions
-- Formal tone
-- Direct and concise
-- Perfect for interview practice
-
-### Voice Recording
-- Click microphone icon to start recording
-- Speak your message
-- Click again to stop and send
-- Audio is transcribed and sent to AI
-- Response streams back in real-time
-
-## 🏗️ Architecture
-
-### Backend Structure
-```
-backend/src/
-├── server.ts              # Entry point with WebSocket
-├── app.ts                 # Express configuration
-├── config/
-│   └── env.ts            # Environment config
-├── db/
-│   └── index.ts          # MongoDB connection
-├── models/
-│   ├── User.ts           # User schema
-│   ├── Conversation.ts   # Conversation schema
-│   └── Message.ts        # Message subdocument
-├── routes/
-│   ├── user.routes.ts
-│   ├── conversation.routes.ts
-│   └── agent.routes.ts
-├── controllers/
-│   ├── user.controller.ts
-│   ├── conversation.controller.ts
-│   └── agent.controller.ts
-├── services/
-│   ├── ai.service.ts      # AI integration
-│   ├── stt.service.ts     # Speech-to-Text
-│   ├── tts.service.ts     # TTS placeholder
-│   └── memory.service.ts  # Conversation memory
-├── websocket/
-│   └── socket.ts          # WebSocket handlers
-├── middlewares/
-│   └── error.middleware.ts
-└── utils/
-    ├── prompts.ts         # System prompts
-    └── logger.ts          # Logging utility
-```
-
-### Frontend Structure
-```
-frontend/src/
-├── app/
-│   ├── page.tsx           # Landing page
-│   ├── layout.tsx         # Root layout
-│   └── dashboard/
-│       └── page.tsx       # Main dashboard
-├── components/
-│   └── navbar.tsx         # Navigation
-├── lib/
-│   └── socket.ts          # WebSocket client
-├── hooks/
-│   ├── useVoiceRecorder.ts
-│   └── useConversation.ts
-└── types/
-    └── index.ts           # TypeScript types
-```
-
-## 🔌 API Endpoints
-
-### REST API
-
-#### Users
-- `POST /api/users` - Create user
-- `GET /api/users/:id` - Get user
-
-#### Conversations
-- `POST /api/conversations` - Create conversation
-- `GET /api/conversations/user/:userId` - Get user conversations
-- `GET /api/conversations/:id` - Get conversation
-- `PATCH /api/conversations/:id` - Update conversation
-- `DELETE /api/conversations/:id` - Delete conversation
-
-#### Agent
-- `POST /api/agent/transcribe` - Transcribe audio
-- `POST /api/agent/message` - Send message (REST fallback)
-
-### WebSocket Events
-
-#### Client → Server
-- `join_conversation` - Join conversation room
-- `send_message` - Send text message
-- `voice_input` - Send voice audio
-
-#### Server → Client
-- `joined_conversation` - Confirmation of join
-- `message_received` - New message added
-- `message_chunk` - Streaming AI response chunk
-- `message_complete` - AI response complete
-- `voice_transcribed` - Voice transcription result
-- `voice_processing` - Voice processing status
-- `error` - Error occurred
-
-## 🧪 Testing
-
-### Manual Testing Checklist
-
-1. **Voice Recording**
-   - [ ] Click mic icon
-   - [ ] Record voice
-   - [ ] Stop recording
-   - [ ] Verify transcription appears
-   - [ ] Verify AI responds
-
-2. **Text Messages**
-   - [ ] Type message
-   - [ ] Send message
-   - [ ] Verify streaming response
-   - [ ] Verify message saved
-
-3. **Conversation Modes**
-   - [ ] Create casual conversation
-   - [ ] Verify friendly tone
-   - [ ] Create interview conversation
-   - [ ] Verify professional tone
-
-4. **Real-time Features**
-   - [ ] Verify token streaming
-   - [ ] Test reconnection
-   - [ ] Check connection indicator
-
-## 🔧 Configuration
-
-### AI Provider Selection
-
-**Groq (Recommended for speed)**
-```env
-AI_PROVIDER=groq
-GROQ_API_KEY=your_key
-```
-
-**OpenAI (Better quality)**
-```env
-AI_PROVIDER=openai
-OPENAI_API_KEY=your_key
-```
-
-### STT Provider Selection
-
-**Whisper (Most accurate)**
-```env
-STT_PROVIDER=whisper
-OPENAI_API_KEY=your_key
-```
-
-**Deepgram (Fastest)**
-```env
-STT_PROVIDER=deepgram
-DEEPGRAM_API_KEY=your_key
-```
-
-## 🐛 Troubleshooting
-
-### Backend won't start
-- Check MongoDB is running
-- Verify API keys in `.env`
-- Check port 5000 is available
-
-### Frontend can't connect
-- Verify backend is running
-- Check `NEXT_PUBLIC_BACKEND_URL` in `.env.local`
-- Check browser console for errors
-
-### Voice recording not working
-- Grant microphone permissions
-- Use HTTPS in production (required for MediaRecorder)
-- Check browser compatibility
-
-### WebSocket connection fails
-- Verify CORS settings
-- Check firewall rules
-- Ensure backend WebSocket is initialized
-
-## 📝 Development Scripts
-
-### Backend
-```bash
-npm run dev      # Start development server with hot reload
-npm run build    # Build TypeScript
-npm start        # Start production server
-```
-
-### Frontend
-```bash
-npm run dev      # Start Next.js dev server
-npm run build    # Build for production
-npm start        # Start production server
-npm run lint     # Run ESLint
-```
-
-## 🚀 Deployment
-
-### Backend Deployment
-1. Set production environment variables
-2. Build TypeScript: `npm run build`
-3. Start server: `npm start`
-4. Use process manager (PM2, systemd)
-
-### Frontend Deployment
-1. Set `NEXT_PUBLIC_BACKEND_URL` to production backend
-2. Build: `npm run build`
-3. Deploy to Vercel/Netlify or use `npm start`
-
-### Environment Considerations
-- Use HTTPS for production (required for voice)
-- Set `NODE_ENV=production`
-- Use MongoDB Atlas for database
-- Configure CORS for production domains
+---
 
 ## 📄 License
 
-MIT
+Distributed under the MIT License. See `LICENSE` for more information.
 
-## 🙏 Acknowledgments
+---
 
-- Built with Next.js, Express, and Socket.IO
-- AI powered by Groq/OpenAI
-- Speech-to-Text by Whisper/Deepgram
+<div align="center">
+  <p>Made with ❤️ by <a href="https://github.com/amant8183">Aman Tiwari</a></p>
+</div>
