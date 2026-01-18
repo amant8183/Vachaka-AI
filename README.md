@@ -1,9 +1,11 @@
 
-# 🎙️ Vachaka AI
+<div align="center" style="margin-bottom: 20px;">
+  <img src="frontend/public/favicon.ico" alt="Vachaka AI Logo" width="80" style="vertical-align: bottom; margin-right: 10px;" />
+  <span style="font-size: 3.3em; font-weight: bold;">Vachaka AI</span>
+</div>
 
-![Vachaka AI Banner](https://placehold.co/1200x400/10b981/ffffff?text=Vachaka+AI)
 
-<div align="center">
+<div align="center" style="margin-bottom: 20px;">
 
 **Production-grade Real-time Voice AI Agent**  
 *Built for latency-critical applications with streaming text & audio.*
